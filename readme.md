@@ -10,3 +10,7 @@
 5. Criando o docker-compose na raiz do projeto
 6. Para executar o docker
     $ docker compose up -d go_db
+7. Criamos o script sql
+8. fizemos os pacotes model e controller para fazer os primeiros testes mocados
+9. Criamos a rota /products no main.go
+10. Criamos a camada de use case
