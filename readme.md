@@ -16,3 +16,8 @@
 10. Criamos a camada de use case
 11. ...
 12. go get package github/lib/pq
+13. Rodar para concertar dependencias
+    $ go mod tidy
+14. Executar no main.go para verificar se esta tudo ok
+15. Vamos criar a rota para inserir produtos
+
