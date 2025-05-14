@@ -14,3 +14,5 @@
 8. fizemos os pacotes model e controller para fazer os primeiros testes mocados
 9. Criamos a rota /products no main.go
 10. Criamos a camada de use case
+11. ...
+12. go get package github/lib/pq
