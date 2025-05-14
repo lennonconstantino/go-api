@@ -3,6 +3,7 @@ package main
 import (
 	"go-api/controller"
 	"go-api/db"
+	"go-api/repository"
 	"go-api/usecase"
 
 	"github.com/gin-gonic/gin"
@@ -17,7 +18,10 @@ func main() {
 		panic(err)
 	}
 
-	ProductUsecase := usecase.NewProductUsecase()
+	// camada de repository
+	ProductRepository := repository.NewProductRepository(dbConnection)
+	// camada de usecase
+	ProductUsecase := usecase.NewProductUsecase(ProductRepository)
 
 	// Camada de controllers
 	productController := controller.NewProductController(ProductUsecase)
