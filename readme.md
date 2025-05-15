@@ -23,3 +23,18 @@
 16. ... apos muitas etapas de implemetacao e testes
 17. Vamos criar uma imagem docker da nossa aplicacao, vamos para a raiz do projeto
     $ touch Dockerfile
+18. Editamos o arquivo Dockerfile e conn.go
+19. Criamos a imagem da nossa api
+    $ docker build -t go-api .
+    $ docker image ls
+20. vamos alterar o nosso Docker Compose
+21. Derrubar e pausar imagens anteriores
+22. Executar o Docker compose novamente
+    $ docker compose up -d
+
+------
+
+## proximos passos
+Criar uma rota de PUT para atualizar produtos
+Criar uma rota de DELETE para deletar algum produto
+Criar uma autenticacao jwt
