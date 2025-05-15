@@ -20,4 +20,6 @@
     $ go mod tidy
 14. Executar no main.go para verificar se esta tudo ok
 15. Vamos criar a rota para inserir produtos
-
+16. ... apos muitas etapas de implemetacao e testes
+17. Vamos criar uma imagem docker da nossa aplicacao, vamos para a raiz do projeto
+    $ touch Dockerfile
