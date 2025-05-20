@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"encoding/json"
 	"go-api/model"
 	"go-api/usecase"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 
@@ -117,6 +119,45 @@ func (p *productController) DeleteProduct(ctx *gin.Context) {
 	}
 
 	if err = p.ProductUsecase.DeleteProduct(productId); err != nil {
+		ctx.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(http.StatusNoContent, nil)
+}
+
+func (p *productController) UpdateProduct(ctx *gin.Context) {
+	id := ctx.Param("productId")
+	if id == "" {
+		response := model.Response{
+			Message: "Id do produto nao pode ser nulo",
+		}
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	productId, err := strconv.Atoi(id)
+	if err != nil {
+		response := model.Response{
+			Message: "Id do produto precisa ser numerico",
+		}
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	bodyRequest, err := ioutil.ReadAll(ctx.Request.Body)
+	if err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	var product model.Product
+	if err = json.Unmarshal(bodyRequest, &product); err != nil {
+		ctx.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	if err = p.ProductUsecase.UpdateProduct(productId, product); err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
 		return
 	}

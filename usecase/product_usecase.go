@@ -45,3 +45,10 @@ func (pu *ProductUsecase) DeleteProduct(id_product int) error {
 	}
 	return nil
 }
+
+func (pu *ProductUsecase) UpdateProduct(id_product int, product model.Product) error {
+	if err := pu.repository.UpdateProduct(id_product, product); err != nil {
+		return err
+	}
+	return nil
+}
