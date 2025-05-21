@@ -40,7 +40,7 @@ func main() {
 		}
 		tokenString = tokenString[len("Bearer "):]
 
-		err := authentication.VerifyToken(tokenString)
+		_, err := authentication.ValidateToken(tokenString)
 		if err != nil {
 			ctx.JSON(http.StatusUnauthorized, "Invalid token")
 			return

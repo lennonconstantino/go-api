@@ -28,7 +28,7 @@ func (lc *loginController) Login(ctx *gin.Context) {
 		tokenString, err := authentication.CreateToken(u.Username)
 		if err != nil {
 			ctx.String(http.StatusInternalServerError, err.Error())
-			fmt.Errorf("No username found")
+			//fmt.Errorf("No username found")
 		}
 		ctx.String(http.StatusOK, tokenString)
 		return
