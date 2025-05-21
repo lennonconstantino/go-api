@@ -32,17 +32,9 @@ func main() {
 
 	server.POST("login", loginController.Login)
 	server.GET("protected", func(ctx *gin.Context) {
-		ctx.Header("Content-Type", "application/json")
-		tokenString := ctx.GetHeader("Authorization")
-		if tokenString == "" {
-			ctx.JSON(http.StatusUnauthorized, "Missing authorization header")
-			return
-		}
-		tokenString = tokenString[len("Bearer "):]
-
-		_, err := authentication.ValidateToken(tokenString)
+		username, err := authentication.ExtractUserName(ctx)
 		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, "Invalid token")
+			ctx.JSON(http.StatusUnauthorized, username)
 			return
 		}
 

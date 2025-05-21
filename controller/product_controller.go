@@ -2,6 +2,8 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
+	"go-api/controller/authentication"
 	"go-api/model"
 	"go-api/usecase"
 	"io/ioutil"
@@ -32,10 +34,19 @@ func (p *productController) GetProducts(ctx *gin.Context) {
 }
 
 func (p *productController) CreateProduct(ctx *gin.Context) {
-	var product model.Product
-	err := ctx.BindJSON(&product)
+	username, err := authentication.ExtractUserName(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusUnauthorized, username)
+		return
+	}
+
+	// Remove this after
+	fmt.Println(username)
+
+	var product model.Product
+	err = ctx.BindJSON(&product)
+	if err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, err)
 		return
 	}
 
