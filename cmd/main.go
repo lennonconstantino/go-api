@@ -1,6 +1,7 @@
 package main
 
 import (
+	"go-api/config"
 	"go-api/controller"
 	"go-api/controller/authentication"
 	"go-api/db"
@@ -12,7 +13,7 @@ import (
 )
 
 func main() {
-
+	config.Load()
 	server := gin.Default()
 
 	dbConnection, err := db.ConnectDB()

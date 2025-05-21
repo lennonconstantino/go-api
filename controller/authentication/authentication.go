@@ -3,6 +3,7 @@ package authentication
 import (
 	"errors"
 	"fmt"
+	"go-api/config"
 	"net/http"
 	"time"
 
@@ -10,15 +11,12 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-var secretKey = []byte("secret-key")
-
 func returnVerificationKey(token *jwt.Token) (interface{}, error) {
 	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 		return nil, fmt.Errorf("Unexpected signature method! %v", token.Header["alg"])
 	}
 
-	//return config.SecretKey, nil
-	return secretKey, nil
+	return config.SecretKey, nil
 }
 
 func ValidateToken(tokenString string) (*jwt.Token, error) {
@@ -41,12 +39,11 @@ func CreateToken(username string) (string, error) {
 		"exp":        time.Now().Add(time.Hour * 24).Unix(),
 	})
 
-	tokenString, err := token.SignedString(secretKey)
+	tokenString, err := token.SignedString(config.SecretKey)
 	if err != nil {
 		return "", err
 	}
 
-	//config.SecretKey
 	return tokenString, nil
 }
 
