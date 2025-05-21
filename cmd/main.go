@@ -1,39 +1,15 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"go-api/controller"
+	"go-api/controller/authentication"
 	"go-api/db"
 	"go-api/repository"
 	"go-api/usecase"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
 )
-
-type User struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-var secretKey = []byte("secret-key")
-
-func createToken(username string) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"username": username,
-		"exp":      time.Now().Add(time.Hour * 24).Unix(),
-	})
-
-	tokenString, err := token.SignedString(secretKey)
-	if err != nil {
-		return "", err
-	}
-
-	return tokenString, nil
-}
 
 func main() {
 
@@ -52,27 +28,25 @@ func main() {
 	// Camada de controllers
 	productController := controller.NewProductController(ProductUsecase)
 
-	server.POST("login", func(ctx *gin.Context) {
+	loginController := controller.NewLoginController()
+
+	server.POST("login", loginController.Login)
+	server.GET("protected", func(ctx *gin.Context) {
 		ctx.Header("Content-Type", "application/json")
-
-		var u User
-		json.NewDecoder(ctx.Request.Body).Decode(&u)
-		fmt.Printf("The user request value %v", u)
-
-		if u.Username == "Chek" && u.Password == "123456" {
-			tokenString, err := createToken(u.Username)
-			if err != nil {
-				ctx.JSON(http.StatusInternalServerError, err)
-				fmt.Errorf("No username found")
-			}
-			//ctx.JSON(http.StatusOK, nil)
-			//fmt.Fprint(w, tokenString)
-			//ctx.Writer.WriteString(tokenString)
-			ctx.String(http.StatusOK, tokenString)
+		tokenString := ctx.GetHeader("Authorization")
+		if tokenString == "" {
+			ctx.JSON(http.StatusUnauthorized, "Missing authorization header")
 			return
-		} else {
-			ctx.String(http.StatusUnauthorized, "Invalid credentials")
 		}
+		tokenString = tokenString[len("Bearer "):]
+
+		err := authentication.VerifyToken(tokenString)
+		if err != nil {
+			ctx.JSON(http.StatusUnauthorized, "Invalid token")
+			return
+		}
+
+		ctx.JSON(http.StatusOK, "Welcome to the the protected area")
 	})
 
 	server.GET("/ping", func(ctx *gin.Context) {
