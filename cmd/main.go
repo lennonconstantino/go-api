@@ -20,32 +20,16 @@ func main() {
 	}
 
 	UserRepository := repository.NewUserRepository(dbConnection)
-
 	UserUsecase := usecase.NewUserUsecase(UserRepository)
-
 	userController := controller.NewUserController(UserUsecase)
 
 	loginController := controller.NewLoginController(UserUsecase)
 
-	// camada de repository
 	ProductRepository := repository.NewProductRepository(dbConnection)
-	// camada de usecase
 	ProductUsecase := usecase.NewProductUsecase(ProductRepository)
-
-	// Camada de controllers
 	productController := controller.NewProductController(ProductUsecase)
 
 	server.POST("login", loginController.Login)
-	server.GET("protected", func(ctx *gin.Context) {
-		// username, err := authentication.ExtractUserName(ctx)
-		// if err != nil {
-		// 	ctx.JSON(http.StatusUnauthorized, username)
-		// 	return
-		// }
-
-		// ctx.JSON(http.StatusOK, "Welcome to the the protected area")
-	})
-
 	server.GET("/ping", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{
 			"message": "pong",
