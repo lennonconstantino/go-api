@@ -19,15 +19,15 @@ func main() {
 		panic(err)
 	}
 
-	UserRepository := repository.NewUserRepository(dbConnection)
-	UserUsecase := usecase.NewUserUsecase(UserRepository)
-	userController := controller.NewUserController(UserUsecase)
+	userRepository := repository.NewUserRepository(dbConnection)
+	userUsecase := usecase.NewUserUsecase(userRepository)
+	userController := controller.NewUserController(userUsecase)
 
-	loginController := controller.NewLoginController(UserUsecase)
+	loginController := controller.NewLoginController(userUsecase)
 
-	ProductRepository := repository.NewProductRepository(dbConnection)
-	ProductUsecase := usecase.NewProductUsecase(ProductRepository)
-	productController := controller.NewProductController(ProductUsecase)
+	productRepository := repository.NewProductRepository(dbConnection)
+	productUsecase := usecase.NewProductUsecase(productRepository)
+	productController := controller.NewProductController(productUsecase)
 
 	server.POST("login", loginController.Login)
 	server.GET("/ping", func(ctx *gin.Context) {
@@ -42,6 +42,8 @@ func main() {
 	server.PUT("/user/:userId", userController.UpdateUser)
 	server.DELETE("/user/:userId", userController.DeleteUser)
 	server.POST("/user/:userId/update-password", userController.UpdatePassword)
+
+	server.Handle("POST", "/user/:userId/update-password", userController.UpdatePassword)
 
 	server.GET("/products", productController.GetProducts)
 	server.POST("/product", productController.CreateProduct)

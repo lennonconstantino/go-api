@@ -3,7 +3,6 @@ package controller
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"go-api/controller/authentication"
 	"go-api/model"
 	"go-api/security"
@@ -78,16 +77,15 @@ func (uu *userController) CreateUser(ctx *gin.Context) {
 }
 
 func (uu *userController) UpdateUser(ctx *gin.Context) {
+	userIDToken, err := authentication.ExtractIDFromToken(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, userIDToken)
+		return
+	}
 
 	userID, err := strconv.ParseUint(ctx.Param("userId"), 10, 64)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, err)
-		return
-	}
-
-	userIDToken, err := authentication.ExtractID(ctx)
-	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, userIDToken)
 		return
 	}
 
@@ -109,14 +107,10 @@ func (uu *userController) UpdateUser(ctx *gin.Context) {
 		return
 	}
 
-	fmt.Printf("1::: %v", user)
-
 	if err = user.Prepare("edit"); err != nil {
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
-
-	fmt.Printf("2::: %v", user)
 
 	if err := uu.UserUsecase.UpdateUser(userID, user); err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
@@ -127,15 +121,15 @@ func (uu *userController) UpdateUser(ctx *gin.Context) {
 }
 
 func (uu *userController) DeleteUser(ctx *gin.Context) {
-	userID, err := strconv.ParseUint(ctx.Param("userId"), 10, 64)
+	userIDToken, err := authentication.ExtractIDFromToken(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusUnauthorized, userIDToken)
 		return
 	}
 
-	userIDToken, err := authentication.ExtractID(ctx)
+	userID, err := strconv.ParseUint(ctx.Param("userId"), 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, userIDToken)
+		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
 
@@ -153,9 +147,8 @@ func (uu *userController) DeleteUser(ctx *gin.Context) {
 }
 
 func (uc *userController) UpdatePassword(ctx *gin.Context) {
-	userIDToken, err := authentication.ExtractID(ctx)
+	userIDToken, err := authentication.ExtractIDFromToken(ctx)
 	if err != nil {
-		fmt.Printf("1:::")
 		ctx.JSON(http.StatusUnauthorized, userIDToken)
 		return
 	}
@@ -167,7 +160,6 @@ func (uc *userController) UpdatePassword(ctx *gin.Context) {
 	}
 
 	if userIDToken != userID {
-		fmt.Printf("2:::")
 		ctx.JSON(http.StatusForbidden, errors.New("It is not possible to change a user that is not yours"))
 		return
 	}
@@ -191,7 +183,6 @@ func (uc *userController) UpdatePassword(ctx *gin.Context) {
 	}
 
 	if err = security.VerifyPassword(passwordInDatabase, password.Current); err != nil {
-		fmt.Printf("3::: %s -> %s", passwordInDatabase, password.Current)
 		ctx.JSON(http.StatusUnauthorized, errors.New("The current password does not match the one saved in the database"))
 		return
 	}

@@ -36,9 +36,9 @@ func (p *productController) GetProducts(ctx *gin.Context) {
 
 // Create Product in database
 func (p *productController) CreateProduct(ctx *gin.Context) {
-	id, err := authentication.ExtractID(ctx)
+	userId, err := authentication.ExtractIDFromToken(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, id)
+		ctx.JSON(http.StatusUnauthorized, userId)
 		return
 	}
 
@@ -48,6 +48,8 @@ func (p *productController) CreateProduct(ctx *gin.Context) {
 		ctx.JSON(http.StatusUnprocessableEntity, err)
 		return
 	}
+
+	// product.Prepare and Validations - Usecase?
 
 	insertedProduct, err := p.ProductUsecase.CreateProduct(product)
 	if err != nil {
@@ -95,7 +97,14 @@ func (p *productController) GetProductById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, product)
 }
 
+// DeleteProduct
 func (p *productController) DeleteProduct(ctx *gin.Context) {
+	userId, err := authentication.ExtractIDFromToken(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, userId)
+		return
+	}
+
 	id := ctx.Param("productId")
 	if id == "" {
 		response := model.Response{
@@ -114,7 +123,6 @@ func (p *productController) DeleteProduct(ctx *gin.Context) {
 		return
 	}
 
-	// UseCase
 	product, err := p.ProductUsecase.GetProductById(productId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
@@ -137,7 +145,14 @@ func (p *productController) DeleteProduct(ctx *gin.Context) {
 	ctx.JSON(http.StatusNoContent, nil)
 }
 
+// UpdateProduct
 func (p *productController) UpdateProduct(ctx *gin.Context) {
+	userId, err := authentication.ExtractIDFromToken(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, userId)
+		return
+	}
+
 	id := ctx.Param("productId")
 	if id == "" {
 		response := model.Response{

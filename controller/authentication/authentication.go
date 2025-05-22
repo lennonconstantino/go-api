@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"go-api/config"
-	"net/http"
 	"strconv"
 	"time"
 
@@ -12,7 +11,8 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-func returnVerificationKey(token *jwt.Token) (interface{}, error) {
+// returnVerificationKey
+func returnVerificationKey(token *jwt.Token) (any, error) {
 	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 		return nil, fmt.Errorf("Unexpected signature method! %v", token.Header["alg"])
 	}
@@ -20,19 +20,7 @@ func returnVerificationKey(token *jwt.Token) (interface{}, error) {
 	return config.SecretKey, nil
 }
 
-func ValidateToken(tokenString string) (*jwt.Token, error) {
-	token, err := jwt.Parse(tokenString, returnVerificationKey)
-	if err != nil {
-		return nil, err
-	}
-
-	if !token.Valid {
-		return nil, fmt.Errorf("invalid token")
-	}
-
-	return token, nil
-}
-
+// CreateToken
 func CreateToken(id uint64) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"authorized": true,
@@ -48,19 +36,20 @@ func CreateToken(id uint64) (string, error) {
 	return tokenString, nil
 }
 
+// ExtractToken
 func ExtractToken(ctx *gin.Context) string {
 	ctx.Header("Content-Type", "application/json")
 	tokenString := ctx.GetHeader("Authorization")
 
-	if tokenString == "" {
-		ctx.JSON(http.StatusUnauthorized, "Missing authorization header")
-		return ""
+	if tokenString != "" {
+		return tokenString[len("Bearer "):]
 	}
 
-	return tokenString[len("Bearer "):]
+	return ""
 }
 
-func ExtractID(ctx *gin.Context) (uint64, error) {
+// ExtractIDFromToken
+func ExtractIDFromToken(ctx *gin.Context) (uint64, error) {
 	tokenString := ExtractToken(ctx)
 	token, err := jwt.Parse(tokenString, returnVerificationKey)
 	if err != nil {
@@ -77,4 +66,23 @@ func ExtractID(ctx *gin.Context) (uint64, error) {
 	}
 
 	return 0, errors.New("Invalid Token")
+}
+
+// ValidateToken
+func ValidateToken(ctx *gin.Context) (*jwt.Token, error) {
+	tokenString := ExtractToken(ctx)
+	if tokenString == "" {
+		return nil, errors.New("Missing authorization header")
+	}
+
+	token, err := jwt.Parse(tokenString, returnVerificationKey)
+	if err != nil {
+		return nil, err
+	}
+
+	if !token.Valid {
+		return nil, fmt.Errorf("invalid token")
+	}
+
+	return token, nil
 }
