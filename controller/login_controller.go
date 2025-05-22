@@ -1,10 +1,9 @@
 package controller
 
 import (
-	"go-api/controller/authentication"
 	"go-api/model"
-	"go-api/security"
 	"go-api/usecase"
+	"go-api/utils"
 	"net/http"
 
 	"strconv"
@@ -42,12 +41,12 @@ func (lc LoginControllerImpl) Login(ctx *gin.Context) {
 		return
 	}
 
-	if err = security.VerifyPassword(userDB.Password, u.Password); err != nil {
+	if err = utils.VerifyPassword(userDB.Password, u.Password); err != nil {
 		ctx.JSON(http.StatusUnauthorized, err)
 		return
 	}
 
-	token, err := authentication.CreateToken(userDB.ID)
+	token, err := utils.CreateToken(userDB.ID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
 		return

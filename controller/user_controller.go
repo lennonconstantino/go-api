@@ -3,10 +3,9 @@ package controller
 import (
 	"encoding/json"
 	"errors"
-	"go-api/controller/authentication"
 	"go-api/model"
-	"go-api/security"
 	"go-api/usecase"
+	"go-api/utils"
 	"net/http"
 	"strconv"
 	"strings"
@@ -14,7 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type UserControler interface {
+type UserController interface {
 	GetUsers(ctx *gin.Context)
 	GetUserById(ctx *gin.Context)
 	CreateUser(ctx *gin.Context)
@@ -86,7 +85,7 @@ func (uu UserControllerImpl) CreateUser(ctx *gin.Context) {
 }
 
 func (uu UserControllerImpl) UpdateUser(ctx *gin.Context) {
-	userIDToken, err := authentication.ExtractIDFromToken(ctx)
+	userIDToken, err := utils.ExtractIDFromToken(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, userIDToken)
 		return
@@ -130,7 +129,7 @@ func (uu UserControllerImpl) UpdateUser(ctx *gin.Context) {
 }
 
 func (uu UserControllerImpl) DeleteUser(ctx *gin.Context) {
-	userIDToken, err := authentication.ExtractIDFromToken(ctx)
+	userIDToken, err := utils.ExtractIDFromToken(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, userIDToken)
 		return
@@ -156,7 +155,7 @@ func (uu UserControllerImpl) DeleteUser(ctx *gin.Context) {
 }
 
 func (uu UserControllerImpl) UpdatePassword(ctx *gin.Context) {
-	userIDToken, err := authentication.ExtractIDFromToken(ctx)
+	userIDToken, err := utils.ExtractIDFromToken(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, userIDToken)
 		return
@@ -191,12 +190,12 @@ func (uu UserControllerImpl) UpdatePassword(ctx *gin.Context) {
 		return
 	}
 
-	if err = security.VerifyPassword(passwordInDatabase, password.Current); err != nil {
+	if err = utils.VerifyPassword(passwordInDatabase, password.Current); err != nil {
 		ctx.JSON(http.StatusUnauthorized, errors.New("The current password does not match the one saved in the database"))
 		return
 	}
 
-	passwordWithHash, err := security.Hash(password.New)
+	passwordWithHash, err := utils.Hash(password.New)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, err)
 		return

@@ -2,9 +2,9 @@ package controller
 
 import (
 	"encoding/json"
-	"go-api/controller/authentication"
 	"go-api/model"
 	"go-api/usecase"
+	"go-api/utils"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -44,7 +44,7 @@ func (p ProductControllerImpl) GetProducts(ctx *gin.Context) {
 
 // Create Product in database
 func (p ProductControllerImpl) CreateProduct(ctx *gin.Context) {
-	userId, err := authentication.ExtractIDFromToken(ctx)
+	userId, err := utils.ExtractIDFromToken(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, userId)
 		return
@@ -107,7 +107,7 @@ func (p ProductControllerImpl) GetProductById(ctx *gin.Context) {
 
 // DeleteProduct
 func (p ProductControllerImpl) DeleteProduct(ctx *gin.Context) {
-	userId, err := authentication.ExtractIDFromToken(ctx)
+	userId, err := utils.ExtractIDFromToken(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, userId)
 		return
@@ -155,7 +155,7 @@ func (p ProductControllerImpl) DeleteProduct(ctx *gin.Context) {
 
 // UpdateProduct
 func (p ProductControllerImpl) UpdateProduct(ctx *gin.Context) {
-	userId, err := authentication.ExtractIDFromToken(ctx)
+	userId, err := utils.ExtractIDFromToken(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, userId)
 		return

@@ -1,15 +1,27 @@
-package authentication
+package utils
 
 import (
 	"errors"
 	"fmt"
 	"go-api/config"
+
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
+	"golang.org/x/crypto/bcrypt"
 )
+
+// Hash receive a string and hash it
+func Hash(senha string) ([]byte, error) {
+	return bcrypt.GenerateFromPassword([]byte(senha), bcrypt.DefaultCost)
+}
+
+// VerifyPassword compare a password and a hash and return whether they are equal
+func VerifyPassword(senhaString, senhaComHash string) error {
+	return bcrypt.CompareHashAndPassword([]byte(senhaString), []byte(senhaComHash))
+}
 
 // returnVerificationKey
 func returnVerificationKey(token *jwt.Token) (any, error) {

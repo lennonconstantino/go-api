@@ -2,7 +2,7 @@ package model
 
 import (
 	"errors"
-	"go-api/security"
+	"go-api/utils"
 	"strings"
 	"time"
 
@@ -54,7 +54,7 @@ func (user *User) format(step string) error {
 	user.Email = strings.TrimSpace(user.Email)
 
 	if step == "form" {
-		passwordWithHash, err := security.Hash(user.Password)
+		passwordWithHash, err := utils.Hash(user.Password)
 		if err != nil {
 			return err
 		}
