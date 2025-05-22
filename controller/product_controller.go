@@ -2,7 +2,6 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"go-api/controller/authentication"
 	"go-api/model"
 	"go-api/usecase"
@@ -13,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// productController struct
 type productController struct {
 	ProductUsecase usecase.ProductUsecase
 }
@@ -24,6 +24,7 @@ func NewProductController(usecase usecase.ProductUsecase) productController {
 	}
 }
 
+// GetProducts get products
 func (p *productController) GetProducts(ctx *gin.Context) {
 	products, err := p.ProductUsecase.GetProducts()
 	if err != nil {
@@ -33,15 +34,13 @@ func (p *productController) GetProducts(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, products)
 }
 
+// Create Product in database
 func (p *productController) CreateProduct(ctx *gin.Context) {
-	username, err := authentication.ExtractUserName(ctx)
+	id, err := authentication.ExtractID(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, username)
+		ctx.JSON(http.StatusUnauthorized, id)
 		return
 	}
-
-	// Remove this after
-	fmt.Println(username)
 
 	var product model.Product
 	err = ctx.BindJSON(&product)
@@ -59,6 +58,7 @@ func (p *productController) CreateProduct(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, insertedProduct)
 }
 
+// GetProductById
 func (p *productController) GetProductById(ctx *gin.Context) {
 	id := ctx.Param("productId")
 	if id == "" {

@@ -3,6 +3,7 @@ module go-api
 go 1.24.3
 
 require (
+	github.com/badoux/checkmail v1.2.4
 	github.com/bytedance/sonic v1.11.6 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go-api/config"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -32,10 +33,10 @@ func ValidateToken(tokenString string) (*jwt.Token, error) {
 	return token, nil
 }
 
-func CreateToken(username string) (string, error) {
+func CreateToken(id uint64) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"authorized": true,
-		"username":   username, // change for id
+		"id":         id,
 		"exp":        time.Now().Add(time.Hour * 24).Unix(),
 	})
 
@@ -59,19 +60,21 @@ func ExtractToken(ctx *gin.Context) string {
 	return tokenString[len("Bearer "):]
 }
 
-func ExtractUserName(ctx *gin.Context) (string, error) {
+func ExtractID(ctx *gin.Context) (uint64, error) {
 	tokenString := ExtractToken(ctx)
 	token, err := jwt.Parse(tokenString, returnVerificationKey)
 	if err != nil {
-		return "", err
+		return 0, err
 	}
 
 	if permissions, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		username := fmt.Sprintf("%s", permissions["username"])
-		if username != "" {
-			return username, nil
+		userID, erro := strconv.ParseUint(fmt.Sprintf("%.0f", permissions["id"]), 10, 64)
+		if erro != nil {
+			return 0, nil
 		}
+
+		return userID, nil
 	}
 
-	return "", errors.New("Invalid Token")
+	return 0, errors.New("Invalid Token")
 }
