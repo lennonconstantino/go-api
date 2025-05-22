@@ -4,6 +4,7 @@ import (
 	"go-api/config"
 	"go-api/controller"
 	"go-api/db"
+	"go-api/middleware"
 	"go-api/repository"
 	"go-api/usecase"
 
@@ -29,27 +30,29 @@ func main() {
 	productUsecase := usecase.NewProductUsecase(productRepository)
 	productController := controller.NewProductController(productUsecase)
 
-	server.POST("login", loginController.Login)
 	server.GET("/ping", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{
 			"message": "pong",
 		})
 	})
 
-	server.GET("/users", userController.GetUsers)
-	server.GET("/user/:userId", userController.GetUserById)
-	server.POST("/user", userController.CreateUser)
-	server.PUT("/user/:userId", userController.UpdateUser)
-	server.DELETE("/user/:userId", userController.DeleteUser)
-	server.POST("/user/:userId/update-password", userController.UpdatePassword)
+	public := server.Group("/api")
+	public.POST("/login", loginController.Login)
 
-	server.Handle("POST", "/user/:userId/update-password", userController.UpdatePassword)
+	public.GET("/users", userController.GetUsers)
+	public.GET("/user/:userId", userController.GetUserById)
+	public.POST("/user", userController.CreateUser)
+	public.GET("/products", productController.GetProducts)
+	public.POST("/product", productController.CreateProduct)
+	public.GET("/product/:productId", productController.GetProductById)
 
-	server.GET("/products", productController.GetProducts)
-	server.POST("/product", productController.CreateProduct)
-	server.GET("/product/:productId", productController.GetProductById)
-	server.DELETE("/product/:productId", productController.DeleteProduct)
-	server.PUT("/product/:productId", productController.UpdateProduct)
+	protected := server.Group("/api/protected")
+	protected.Use(middleware.JwtAuthMiddleware())
+	protected.PUT("/user/:userId", userController.UpdateUser)
+	protected.DELETE("/user/:userId", userController.DeleteUser)
+	protected.POST("/user/:userId/update-password", userController.UpdatePassword)
+	protected.DELETE("/product/:productId", productController.DeleteProduct)
+	protected.PUT("/product/:productId", productController.UpdateProduct)
 
 	server.Run(":8000")
 }
