@@ -12,17 +12,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type loginController struct {
-	UserUsecase usecase.UserUsecase
+type LoginController interface {
+	Login(ctx *gin.Context)
 }
 
-func NewLoginController(usecase usecase.UserUsecase) loginController {
-	return loginController{
-		UserUsecase: usecase,
+type LoginControllerImpl struct {
+	userUsecase usecase.UserUsecase
+}
+
+func NewLoginController(usecase usecase.UserUsecase) *LoginControllerImpl {
+	return &LoginControllerImpl{
+		userUsecase: usecase,
 	}
 }
 
-func (lc *loginController) Login(ctx *gin.Context) {
+func (lc LoginControllerImpl) Login(ctx *gin.Context) {
 	ctx.Header("Content-Type", "application/json")
 
 	var u model.User
@@ -32,7 +36,7 @@ func (lc *loginController) Login(ctx *gin.Context) {
 		return
 	}
 
-	userDB, err := lc.UserUsecase.GetUserByEmail(u.Email)
+	userDB, err := lc.userUsecase.GetUserByEmail(u.Email)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
 		return

@@ -6,17 +6,28 @@ import (
 	"go-api/model"
 )
 
-type UserRepository struct {
+type UserRepository interface {
+	GetUsers(username string) ([]model.User, error)
+	CreateUser(user model.User) (uint64, error)
+	GetUserById(userId uint64) (*model.User, error)
+	DeleteUser(userId uint64) error
+	UpdateUser(userId uint64, user model.User) error
+	FetchPassword(userId uint64) (string, error)
+	UpdatePassword(userId uint64, password string) error
+	GetUserByEmail(email string) (model.User, error)
+}
+
+type UserRepositoryImpl struct {
 	connection *sql.DB
 }
 
-func NewUserRepository(connection *sql.DB) UserRepository {
-	return UserRepository{
+func NewUserRepository(connection *sql.DB) *UserRepositoryImpl {
+	return &UserRepositoryImpl{
 		connection: connection,
 	}
 }
 
-func (ur *UserRepository) GetUsers(username string) ([]model.User, error) {
+func (ur UserRepositoryImpl) GetUsers(username string) ([]model.User, error) {
 	username = fmt.Sprintf("%%%s%%", username) // %username%
 
 	rows, err := ur.connection.Query("select id, username, email, created_at from users where username LIKE $1", username)
@@ -48,7 +59,7 @@ func (ur *UserRepository) GetUsers(username string) ([]model.User, error) {
 	return UserList, nil
 }
 
-func (ur *UserRepository) CreateUser(User model.User) (uint64, error) {
+func (ur UserRepositoryImpl) CreateUser(user model.User) (uint64, error) {
 	var id int
 	query, err := ur.connection.Prepare("INSERT INTO users" +
 		"(username, email, password)" +
@@ -59,7 +70,7 @@ func (ur *UserRepository) CreateUser(User model.User) (uint64, error) {
 		return 0, err
 	}
 
-	err = query.QueryRow(User.Username, User.Email, User.Password).Scan(&id)
+	err = query.QueryRow(user.Username, user.Email, user.Password).Scan(&id)
 	if err != nil {
 		fmt.Println(err)
 		return 0, err
@@ -68,20 +79,20 @@ func (ur *UserRepository) CreateUser(User model.User) (uint64, error) {
 	return uint64(id), nil
 }
 
-func (ur *UserRepository) GetUserById(ID uint64) (*model.User, error) {
+func (ur UserRepositoryImpl) GetUserById(userId uint64) (*model.User, error) {
 	query, err := ur.connection.Prepare("SELECT id, username, email, created_at FROM users WHERE id = $1")
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
 
-	var User model.User
+	var user model.User
 
-	err = query.QueryRow(ID).Scan(
-		&User.ID,
-		&User.Username,
-		&User.Email,
-		&User.CreatedAt,
+	err = query.QueryRow(userId).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.CreatedAt,
 	)
 
 	if err != nil {
@@ -94,10 +105,10 @@ func (ur *UserRepository) GetUserById(ID uint64) (*model.User, error) {
 
 	query.Close()
 
-	return &User, nil
+	return &user, nil
 }
 
-func (ur *UserRepository) DeleteUser(id_User uint64) error {
+func (ur UserRepositoryImpl) DeleteUser(userId uint64) error {
 	statement, err := ur.connection.Prepare("DELETE FROM users WHERE id = $1")
 	if err != nil {
 		fmt.Println(err)
@@ -105,14 +116,14 @@ func (ur *UserRepository) DeleteUser(id_User uint64) error {
 	}
 	defer statement.Close()
 
-	if _, err = statement.Exec(id_User); err != nil {
+	if _, err = statement.Exec(userId); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (ur *UserRepository) UpdateUser(id_User uint64, User model.User) error {
+func (ur UserRepositoryImpl) UpdateUser(userId uint64, user model.User) error {
 	statement, err := ur.connection.Prepare(
 		"update users set username = $1, email = $2 where id = $3",
 	)
@@ -121,7 +132,7 @@ func (ur *UserRepository) UpdateUser(id_User uint64, User model.User) error {
 	}
 	defer statement.Close()
 
-	if _, err = statement.Exec(User.Username, User.Email, id_User); err != nil {
+	if _, err = statement.Exec(user.Username, user.Email, userId); err != nil {
 		return err
 	}
 
@@ -129,8 +140,8 @@ func (ur *UserRepository) UpdateUser(id_User uint64, User model.User) error {
 }
 
 // FetchPassword fetches a user's password by ID
-func (ur *UserRepository) FetchPassword(userID uint64) (string, error) {
-	line, err := ur.connection.Query("select password from users where id = $1", userID)
+func (ur UserRepositoryImpl) FetchPassword(userId uint64) (string, error) {
+	line, err := ur.connection.Query("select password from users where id = $1", userId)
 	if err != nil {
 		return "", err
 	}
@@ -148,21 +159,21 @@ func (ur *UserRepository) FetchPassword(userID uint64) (string, error) {
 }
 
 // UpdatePassword changes the password of a user
-func (ur *UserRepository) UpdatePassword(userID uint64, password string) error {
+func (ur UserRepositoryImpl) UpdatePassword(userId uint64, password string) error {
 	statement, err := ur.connection.Prepare("update users set password = $1 where id = $2")
 	if err != nil {
 		return err
 	}
 	defer statement.Close()
 
-	if _, err = statement.Exec(password, userID); err != nil {
+	if _, err = statement.Exec(password, userId); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (ur *UserRepository) GetUserByEmail(email string) (model.User, error) {
+func (ur UserRepositoryImpl) GetUserByEmail(email string) (model.User, error) {
 	line, err := ur.connection.Query("SELECT id, password FROM users WHERE email = $1", email)
 	if err != nil {
 		fmt.Println(err)

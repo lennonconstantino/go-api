@@ -14,21 +14,30 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type userController struct {
-	UserUsecase usecase.UserUsecase
+type UserControler interface {
+	GetUsers(ctx *gin.Context)
+	GetUserById(ctx *gin.Context)
+	CreateUser(ctx *gin.Context)
+	UpdateUser(ctx *gin.Context)
+	DeleteUser(ctx *gin.Context)
+	UpdatePassword(ctx *gin.Context)
+}
+
+type UserControllerImpl struct {
+	userUsecase usecase.UserUsecase
 }
 
 // NewUserController initialize
-func NewUserController(usecase usecase.UserUsecase) userController {
-	return userController{
-		UserUsecase: usecase,
+func NewUserController(usecase usecase.UserUsecase) *UserControllerImpl {
+	return &UserControllerImpl{
+		userUsecase: usecase,
 	}
 }
 
-func (uu *userController) GetUsers(ctx *gin.Context) {
+func (uu UserControllerImpl) GetUsers(ctx *gin.Context) {
 	username := strings.ToLower(ctx.Query("username"))
 
-	users, err := uu.UserUsecase.GetUsers(username)
+	users, err := uu.userUsecase.GetUsers(username)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
 		return
@@ -37,14 +46,14 @@ func (uu *userController) GetUsers(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, users)
 }
 
-func (uu *userController) GetUserById(ctx *gin.Context) {
+func (uu UserControllerImpl) GetUserById(ctx *gin.Context) {
 	userID, err := strconv.ParseUint(ctx.Param("userId"), 10, 64)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
 
-	user, err := uu.UserUsecase.GetUserById(userID)
+	user, err := uu.userUsecase.GetUserById(userID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
 		return
@@ -53,7 +62,7 @@ func (uu *userController) GetUserById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
-func (uu *userController) CreateUser(ctx *gin.Context) {
+func (uu UserControllerImpl) CreateUser(ctx *gin.Context) {
 
 	var user model.User
 	err := ctx.BindJSON(&user)
@@ -67,7 +76,7 @@ func (uu *userController) CreateUser(ctx *gin.Context) {
 		return
 	}
 
-	user, err = uu.UserUsecase.CreateUser(user)
+	user, err = uu.userUsecase.CreateUser(user)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
 		return
@@ -76,7 +85,7 @@ func (uu *userController) CreateUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, user)
 }
 
-func (uu *userController) UpdateUser(ctx *gin.Context) {
+func (uu UserControllerImpl) UpdateUser(ctx *gin.Context) {
 	userIDToken, err := authentication.ExtractIDFromToken(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, userIDToken)
@@ -112,7 +121,7 @@ func (uu *userController) UpdateUser(ctx *gin.Context) {
 		return
 	}
 
-	if err := uu.UserUsecase.UpdateUser(userID, user); err != nil {
+	if err := uu.userUsecase.UpdateUser(userID, user); err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -120,7 +129,7 @@ func (uu *userController) UpdateUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusNoContent, nil)
 }
 
-func (uu *userController) DeleteUser(ctx *gin.Context) {
+func (uu UserControllerImpl) DeleteUser(ctx *gin.Context) {
 	userIDToken, err := authentication.ExtractIDFromToken(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, userIDToken)
@@ -138,7 +147,7 @@ func (uu *userController) DeleteUser(ctx *gin.Context) {
 		return
 	}
 
-	if err := uu.UserUsecase.DeleteUser(userID); err != nil {
+	if err := uu.userUsecase.DeleteUser(userID); err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -146,7 +155,7 @@ func (uu *userController) DeleteUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusNoContent, nil)
 }
 
-func (uc *userController) UpdatePassword(ctx *gin.Context) {
+func (uu UserControllerImpl) UpdatePassword(ctx *gin.Context) {
 	userIDToken, err := authentication.ExtractIDFromToken(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, userIDToken)
@@ -176,7 +185,7 @@ func (uc *userController) UpdatePassword(ctx *gin.Context) {
 		return
 	}
 
-	passwordInDatabase, err := uc.UserUsecase.FetchPassword(userID)
+	passwordInDatabase, err := uu.userUsecase.FetchPassword(userID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
 		return
@@ -193,7 +202,7 @@ func (uc *userController) UpdatePassword(ctx *gin.Context) {
 		return
 	}
 
-	if err = uc.UserUsecase.UpdatePassword(userID, string(passwordWithHash)); err != nil {
+	if err = uu.userUsecase.UpdatePassword(userID, string(passwordWithHash)); err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
 		return
 	}

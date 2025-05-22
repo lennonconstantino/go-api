@@ -12,21 +12,29 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// productController struct
-type productController struct {
-	ProductUsecase usecase.ProductUsecase
+type ProductController interface {
+	GetProducts(ctx *gin.Context)
+	CreateProduct(ctx *gin.Context)
+	GetProductById(ctx *gin.Context)
+	DeleteProduct(ctx *gin.Context)
+	UpdateProduct(ctx *gin.Context)
+}
+
+// ProductController struct
+type ProductControllerImpl struct {
+	productUsecase usecase.ProductUsecase
 }
 
 // NewProductController initialize
-func NewProductController(usecase usecase.ProductUsecase) productController {
-	return productController{
-		ProductUsecase: usecase,
+func NewProductController(usecase usecase.ProductUsecase) *ProductControllerImpl {
+	return &ProductControllerImpl{
+		productUsecase: usecase,
 	}
 }
 
 // GetProducts get products
-func (p *productController) GetProducts(ctx *gin.Context) {
-	products, err := p.ProductUsecase.GetProducts()
+func (p ProductControllerImpl) GetProducts(ctx *gin.Context) {
+	products, err := p.productUsecase.GetProducts()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
 	}
@@ -35,7 +43,7 @@ func (p *productController) GetProducts(ctx *gin.Context) {
 }
 
 // Create Product in database
-func (p *productController) CreateProduct(ctx *gin.Context) {
+func (p ProductControllerImpl) CreateProduct(ctx *gin.Context) {
 	userId, err := authentication.ExtractIDFromToken(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, userId)
@@ -51,7 +59,7 @@ func (p *productController) CreateProduct(ctx *gin.Context) {
 
 	// product.Prepare and Validations - Usecase?
 
-	insertedProduct, err := p.ProductUsecase.CreateProduct(product)
+	insertedProduct, err := p.productUsecase.CreateProduct(product)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
 		return
@@ -61,7 +69,7 @@ func (p *productController) CreateProduct(ctx *gin.Context) {
 }
 
 // GetProductById
-func (p *productController) GetProductById(ctx *gin.Context) {
+func (p ProductControllerImpl) GetProductById(ctx *gin.Context) {
 	id := ctx.Param("productId")
 	if id == "" {
 		response := model.Response{
@@ -80,7 +88,7 @@ func (p *productController) GetProductById(ctx *gin.Context) {
 		return
 	}
 
-	product, err := p.ProductUsecase.GetProductById(productId)
+	product, err := p.productUsecase.GetProductById(productId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
 		return
@@ -98,7 +106,7 @@ func (p *productController) GetProductById(ctx *gin.Context) {
 }
 
 // DeleteProduct
-func (p *productController) DeleteProduct(ctx *gin.Context) {
+func (p ProductControllerImpl) DeleteProduct(ctx *gin.Context) {
 	userId, err := authentication.ExtractIDFromToken(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, userId)
@@ -123,7 +131,7 @@ func (p *productController) DeleteProduct(ctx *gin.Context) {
 		return
 	}
 
-	product, err := p.ProductUsecase.GetProductById(productId)
+	product, err := p.productUsecase.GetProductById(productId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
 		return
@@ -137,7 +145,7 @@ func (p *productController) DeleteProduct(ctx *gin.Context) {
 		return
 	}
 
-	if err = p.ProductUsecase.DeleteProduct(productId); err != nil {
+	if err = p.productUsecase.DeleteProduct(productId); err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -146,7 +154,7 @@ func (p *productController) DeleteProduct(ctx *gin.Context) {
 }
 
 // UpdateProduct
-func (p *productController) UpdateProduct(ctx *gin.Context) {
+func (p ProductControllerImpl) UpdateProduct(ctx *gin.Context) {
 	userId, err := authentication.ExtractIDFromToken(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, userId)
@@ -183,7 +191,7 @@ func (p *productController) UpdateProduct(ctx *gin.Context) {
 		return
 	}
 
-	if err = p.ProductUsecase.UpdateProduct(productId, product); err != nil {
+	if err = p.productUsecase.UpdateProduct(productId, product); err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
 		return
 	}

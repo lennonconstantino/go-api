@@ -5,21 +5,29 @@ import (
 	"go-api/repository"
 )
 
-type ProductUsecase struct {
+type ProductUsecase interface {
+	GetProducts() ([]model.Product, error)
+	CreateProduct(product model.Product) (model.Product, error)
+	GetProductById(id_product int) (*model.Product, error)
+	DeleteProduct(id_product int) error
+	UpdateProduct(id_product int, product model.Product) error
+}
+
+type ProductUsecaseImpl struct {
 	repository repository.ProductRepository
 }
 
-func NewProductUsecase(repo repository.ProductRepository) ProductUsecase {
-	return ProductUsecase{
+func NewProductUsecase(repo repository.ProductRepository) *ProductUsecaseImpl {
+	return &ProductUsecaseImpl{
 		repository: repo,
 	}
 }
 
-func (pu *ProductUsecase) GetProducts() ([]model.Product, error) {
+func (pu ProductUsecaseImpl) GetProducts() ([]model.Product, error) {
 	return pu.repository.GetProducts()
 }
 
-func (pu *ProductUsecase) CreateProduct(product model.Product) (model.Product, error) {
+func (pu ProductUsecaseImpl) CreateProduct(product model.Product) (model.Product, error) {
 	productId, err := pu.repository.CreateProduct(product)
 	if err != nil {
 		return model.Product{}, err
@@ -30,7 +38,7 @@ func (pu *ProductUsecase) CreateProduct(product model.Product) (model.Product, e
 	return product, nil
 }
 
-func (pu *ProductUsecase) GetProductById(id_product int) (*model.Product, error) {
+func (pu ProductUsecaseImpl) GetProductById(id_product int) (*model.Product, error) {
 	product, err := pu.repository.GetProductById(id_product)
 	if err != nil {
 		return nil, err
@@ -39,14 +47,14 @@ func (pu *ProductUsecase) GetProductById(id_product int) (*model.Product, error)
 	return product, nil
 }
 
-func (pu *ProductUsecase) DeleteProduct(id_product int) error {
+func (pu ProductUsecaseImpl) DeleteProduct(id_product int) error {
 	if err := pu.repository.DeleteProduct(id_product); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (pu *ProductUsecase) UpdateProduct(id_product int, product model.Product) error {
+func (pu ProductUsecaseImpl) UpdateProduct(id_product int, product model.Product) error {
 	if err := pu.repository.UpdateProduct(id_product, product); err != nil {
 		return err
 	}
