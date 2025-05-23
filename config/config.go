@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	// vai enxergar o container
+	// see the container
 	postDB             = ""
 	portDB             = 0
 	userDB             = ""
@@ -23,7 +23,7 @@ var (
 	SecretKey []byte
 )
 
-// Carregar vai inicializar as variaveis de ambiente
+// Load initialize environment variables
 func Load() {
 	var err error
 

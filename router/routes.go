@@ -8,21 +8,9 @@ import (
 )
 
 func Init(init *inject.Initialization) *gin.Engine {
-	//func Init() *gin.Engine {
-
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
-
-	// api := router.Group("/api")
-	// {
-	// 	user := api.Group("/user")
-	// 	user.GET("", init.UserCtrl.GetAllUserData)
-	// 	user.POST("", init.UserCtrl.AddUserData)
-	// 	user.GET("/:userID", init.UserCtrl.GetUserById)
-	// 	user.PUT("/:userID", init.UserCtrl.UpdateUserData)
-	// 	user.DELETE("/:userID", init.UserCtrl.DeleteUser)
-	// }
 
 	router.GET("/ping", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{
