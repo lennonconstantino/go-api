@@ -6,17 +6,25 @@ import (
 	"go-api/model"
 )
 
-type ProductRepository struct {
+type ProductRepository interface {
+	GetProducts() ([]model.Product, error)
+	CreateProduct(product model.Product) (int, error)
+	GetProductById(id_product int) (*model.Product, error)
+	DeleteProduct(id_product int) error
+	UpdateProduct(id_product int, product model.Product) error
+}
+
+type ProductRepositoryImpl struct {
 	connection *sql.DB
 }
 
-func NewProductRepository(connection *sql.DB) ProductRepository {
-	return ProductRepository{
+func NewProductRepository(connection *sql.DB) *ProductRepositoryImpl {
+	return &ProductRepositoryImpl{
 		connection: connection,
 	}
 }
 
-func (pr *ProductRepository) GetProducts() ([]model.Product, error) {
+func (pr ProductRepositoryImpl) GetProducts() ([]model.Product, error) {
 	query := "SELECT id, name, price FROM product"
 	rows, err := pr.connection.Query(query)
 	if err != nil {
@@ -46,7 +54,7 @@ func (pr *ProductRepository) GetProducts() ([]model.Product, error) {
 	return productList, nil
 }
 
-func (pr *ProductRepository) CreateProduct(product model.Product) (int, error) {
+func (pr ProductRepositoryImpl) CreateProduct(product model.Product) (int, error) {
 	var id int
 	query, err := pr.connection.Prepare("INSERT INTO product" +
 		"(name, price)" +
@@ -66,7 +74,7 @@ func (pr *ProductRepository) CreateProduct(product model.Product) (int, error) {
 	return id, nil
 }
 
-func (pr *ProductRepository) GetProductById(id_product int) (*model.Product, error) {
+func (pr ProductRepositoryImpl) GetProductById(id_product int) (*model.Product, error) {
 	query, err := pr.connection.Prepare("SELECT * FROM product WHERE id = $1")
 	if err != nil {
 		fmt.Println(err)
@@ -94,7 +102,7 @@ func (pr *ProductRepository) GetProductById(id_product int) (*model.Product, err
 	return &product, nil
 }
 
-func (pr *ProductRepository) DeleteProduct(id_product int) error {
+func (pr ProductRepositoryImpl) DeleteProduct(id_product int) error {
 	statement, err := pr.connection.Prepare("DELETE FROM product WHERE id = $1")
 	if err != nil {
 		fmt.Println(err)
@@ -109,7 +117,7 @@ func (pr *ProductRepository) DeleteProduct(id_product int) error {
 	return nil
 }
 
-func (pr *ProductRepository) UpdateProduct(id_product int, product model.Product) error {
+func (pr ProductRepositoryImpl) UpdateProduct(id_product int, product model.Product) error {
 	statement, err := pr.connection.Prepare(
 		"update product set price = $1, name = $2 where id = $3",
 	)
