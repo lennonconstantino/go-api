@@ -136,7 +136,7 @@ paths:
               type: object
       summary: Login User
       tags:
-      - user
+      - Login
   /api/product:
     post:
       consumes:
@@ -188,6 +188,8 @@ paths:
                   type: string
               type: object
       summary: CreateProduct
+      tags:
+      - Products
   /api/product/{productId}:
     delete:
       consumes:
@@ -239,6 +241,8 @@ paths:
                   type: string
               type: object
       summary: DeleteProduct
+      tags:
+      - Products
     get:
       consumes:
       - application/json
@@ -288,6 +292,8 @@ paths:
                   type: string
               type: object
       summary: GetProductById
+      tags:
+      - Products
     put:
       consumes:
       - application/json
@@ -344,6 +350,8 @@ paths:
                   type: string
               type: object
       summary: UpdateProduct
+      tags:
+      - Products
   /api/products:
     get:
       consumes:
@@ -390,6 +398,8 @@ paths:
                   type: string
               type: object
       summary: GetProdutcts
+      tags:
+      - Products
   /api/user:
     post:
       consumes:
@@ -441,6 +451,8 @@ paths:
                   type: string
               type: object
       summary: CreateUser
+      tags:
+      - Users
   /api/user/{userId}:
     delete:
       consumes:
@@ -492,6 +504,8 @@ paths:
                   type: string
               type: object
       summary: DeleteUser
+      tags:
+      - Users
     get:
       consumes:
       - application/json
@@ -542,6 +556,8 @@ paths:
                   type: string
               type: object
       summary: GetUserById
+      tags:
+      - Users
     put:
       consumes:
       - application/json
@@ -598,6 +614,8 @@ paths:
                   type: string
               type: object
       summary: UpdateUser
+      tags:
+      - Users
   /api/user/{userId}/update-password:
     post:
       consumes:
@@ -654,11 +672,13 @@ paths:
                   type: string
               type: object
       summary: UpdatePassword
+      tags:
+      - Users
   /api/users:
     get:
       consumes:
       - application/json
-      description: GetUsers
+      description: GetUsers list all users from database
       operationId: username
       parameters:
       - description: UserRequestParam
@@ -706,5 +726,7 @@ paths:
                 message:
                   type: string
               type: object
-      summary: GetUsers
+      summary: GetUsers User
+      tags:
+      - Users
 swagger: "2.0"

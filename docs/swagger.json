@@ -14,7 +14,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "Login"
                 ],
                 "summary": "Login User",
                 "responses": {
@@ -95,6 +95,9 @@
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Products"
                 ],
                 "summary": "CreateProduct",
                 "parameters": [
@@ -187,6 +190,9 @@
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Products"
+                ],
                 "summary": "GetProductById",
                 "parameters": [
                     {
@@ -273,6 +279,9 @@
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Products"
                 ],
                 "summary": "UpdateProduct",
                 "operationId": "productId",
@@ -371,6 +380,9 @@
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Products"
+                ],
                 "summary": "DeleteProduct",
                 "operationId": "productId",
                 "parameters": [
@@ -461,6 +473,9 @@
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Products"
+                ],
                 "summary": "GetProdutcts",
                 "responses": {
                     "200": {
@@ -543,6 +558,9 @@
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Users"
                 ],
                 "summary": "CreateUser",
                 "parameters": [
@@ -635,6 +653,9 @@
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Users"
+                ],
                 "summary": "GetUserById",
                 "operationId": "userId",
                 "parameters": [
@@ -722,6 +743,9 @@
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Users"
                 ],
                 "summary": "UpdateUser",
                 "operationId": "userId",
@@ -820,6 +844,9 @@
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Users"
+                ],
                 "summary": "DeleteUser",
                 "operationId": "userId",
                 "parameters": [
@@ -909,6 +936,9 @@
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Users"
                 ],
                 "summary": "UpdatePassword",
                 "parameters": [
@@ -1001,14 +1031,17 @@
         },
         "/api/users": {
             "get": {
-                "description": "GetUsers",
+                "description": "GetUsers list all users from database",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "GetUsers",
+                "tags": [
+                    "Users"
+                ],
+                "summary": "GetUsers User",
                 "operationId": "username",
                 "parameters": [
                     {

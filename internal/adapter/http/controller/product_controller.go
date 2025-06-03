@@ -37,6 +37,7 @@ func NewProductController(usecase usecase.ProductUsecase) *ProductControllerImpl
 // @Description GetProdutcts
 // @Accept  json
 // @Produce  json
+// @Tags Products
 // @Success 200 {object} response.JSONSuccessResult{data=[]model.Product,code=int,message=string}
 // @Failure 400 {object} response.JSONBadRequestResult{code=int,message=string}
 // @Failure 500 {object} response.JSONIntServerErrReqResult{code=int,message=string}
@@ -54,6 +55,7 @@ func (p ProductControllerImpl) GetProducts(ctx *gin.Context) {
 // @Description CreateProduct
 // @Accept  json
 // @Produce  json
+// @Tags Products
 // @Param product body dto.ProductCreateRequestBody true "Product Data"
 // @Success 200 {object} response.JSONSuccessResult{data=model.Product,code=int,message=string}
 // @Failure 400 {object} response.JSONBadRequestResult{code=int,message=string}
@@ -87,6 +89,7 @@ func (p ProductControllerImpl) CreateProduct(ctx *gin.Context) {
 // GetProductById godoc
 // @Summary GetProductById
 // @Description GetProductById
+// @Tags Products
 // @Accept  json
 // @Produce  json
 // @Param productId   path   int true   "ProductRequestParam"
@@ -136,6 +139,7 @@ func (p ProductControllerImpl) GetProductById(ctx *gin.Context) {
 // @ID productId
 // @Accept  json
 // @Produce  json
+// @Tags Products
 // @Param productId   path   int true   "ProductRequestParam"
 // @Success 204 {object} response.JSONSuccessResult{data=nil,code=int,message=string}
 // @Failure 400 {object} response.JSONBadRequestResult{code=int,message=string}
@@ -194,6 +198,7 @@ func (p ProductControllerImpl) DeleteProduct(ctx *gin.Context) {
 // @ID productId
 // @Accept  json
 // @Produce  json
+// @Tags Products
 // @Param productId   path   int true   "ProductRequestParam"
 // @Param product body dto.ProductCreateRequestBody true "Product Data"
 // @Success 204 {object} response.JSONSuccessResult{data=nil,code=int,message=string}

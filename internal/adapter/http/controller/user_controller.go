@@ -34,11 +34,12 @@ func NewUserController(usecase usecase.UserUsecase) *UserControllerImpl {
 }
 
 // GetUsers godoc
-// @Summary GetUsers
-// @Description GetUsers
+// @Summary GetUsers User
+// @Description GetUsers list all users from database
 // @ID username
 // @Accept  json
 // @Produce  json
+// @Tags Users
 // @Param username   path   int true   "UserRequestParam"
 // @Success 200 {object} response.JSONSuccessResult{data=[]entity.User,code=int,message=string}
 // @Failure 400 {object} response.JSONBadRequestResult{code=int,message=string}
@@ -62,6 +63,7 @@ func (uu UserControllerImpl) GetUsers(ctx *gin.Context) {
 // @ID userId
 // @Accept  json
 // @Produce  json
+// @Tags Users
 // @Param userId   path   int true   "UserRequestParam"
 // @Success 200 {object} response.JSONSuccessResult{data=entity.User,code=int,message=string}
 // @Failure 400 {object} response.JSONBadRequestResult{code=int,message=string}
@@ -88,6 +90,7 @@ func (uu UserControllerImpl) GetUserById(ctx *gin.Context) {
 // @Description CreateUser
 // @Accept  json
 // @Produce  json
+// @Tags Users
 // @Param user body dto.UserCreateRequestBody true "User Data"
 // @Success 200 {object} response.JSONSuccessResult{data=entity.User,code=int,message=string}
 // @Failure 400 {object} response.JSONBadRequestResult{code=int,message=string}
@@ -122,6 +125,7 @@ func (uu UserControllerImpl) CreateUser(ctx *gin.Context) {
 // @ID userId
 // @Accept  json
 // @Produce  json
+// @Tags Users
 // @Param userId   path   int true   "UserRequestParam"
 // @Param user body dto.UserUpdateRequestBody true "User Data"
 // @Success 204 {object} response.JSONSuccessResult{data=nil,code=int,message=string}
@@ -178,6 +182,7 @@ func (uu UserControllerImpl) UpdateUser(ctx *gin.Context) {
 // @ID userId
 // @Accept  json
 // @Produce  json
+// @Tags Users
 // @Param userId   path   int true   "UserRequestParam"
 // @Success 204 {object} response.JSONSuccessResult{data=nil,code=int,message=string}
 // @Failure 400 {object} response.JSONBadRequestResult{code=int,message=string}
@@ -214,6 +219,7 @@ func (uu UserControllerImpl) DeleteUser(ctx *gin.Context) {
 // @Description UpdatePassword
 // @Accept  json
 // @Produce  json
+// @Tags Users
 // @Param userId   path   int true   "UserRequestParam"
 // @Param login body dto.LoginRequestDto true "login Data"
 // @Success 204 {object} response.JSONSuccessResult{data=nil,code=int,message=string}

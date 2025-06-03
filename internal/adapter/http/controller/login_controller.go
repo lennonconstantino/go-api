@@ -26,9 +26,10 @@ func NewLoginController(usecase usecase.UserUsecase) *LoginControllerImpl {
 	}
 }
 
+// Login godoc
 // @Summary Login User
 // @Description Login user
-// @Tags user
+// @Tags Login
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} response.JSONSuccessResult{data=entity.Auth,code=int,message=string}

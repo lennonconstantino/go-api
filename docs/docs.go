@@ -25,7 +25,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "Login"
                 ],
                 "summary": "Login User",
                 "responses": {
@@ -106,6 +106,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Products"
                 ],
                 "summary": "CreateProduct",
                 "parameters": [
@@ -198,6 +201,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Products"
+                ],
                 "summary": "GetProductById",
                 "parameters": [
                     {
@@ -284,6 +290,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Products"
                 ],
                 "summary": "UpdateProduct",
                 "operationId": "productId",
@@ -382,6 +391,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Products"
+                ],
                 "summary": "DeleteProduct",
                 "operationId": "productId",
                 "parameters": [
@@ -472,6 +484,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Products"
+                ],
                 "summary": "GetProdutcts",
                 "responses": {
                     "200": {
@@ -554,6 +569,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Users"
                 ],
                 "summary": "CreateUser",
                 "parameters": [
@@ -646,6 +664,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Users"
+                ],
                 "summary": "GetUserById",
                 "operationId": "userId",
                 "parameters": [
@@ -733,6 +754,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Users"
                 ],
                 "summary": "UpdateUser",
                 "operationId": "userId",
@@ -831,6 +855,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Users"
+                ],
                 "summary": "DeleteUser",
                 "operationId": "userId",
                 "parameters": [
@@ -920,6 +947,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Users"
                 ],
                 "summary": "UpdatePassword",
                 "parameters": [
@@ -1012,14 +1042,17 @@ const docTemplate = `{
         },
         "/api/users": {
             "get": {
-                "description": "GetUsers",
+                "description": "GetUsers list all users from database",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "GetUsers",
+                "tags": [
+                    "Users"
+                ],
+                "summary": "GetUsers User",
                 "operationId": "username",
                 "parameters": [
                     {
