@@ -34,6 +34,9 @@
 
 ------
 
+$HOME/go/bin/swag init
+https://github.com/swaggo/swag/issues/209
+
 ## proximos passos
 Criar uma rota de PUT para atualizar produtos
 Criar uma rota de DELETE para deletar algum produto

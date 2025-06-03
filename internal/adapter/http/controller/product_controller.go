@@ -32,17 +32,33 @@ func NewProductController(usecase usecase.ProductUsecase) *ProductControllerImpl
 	}
 }
 
-// GetProducts get products
+// GetProdutcts godoc
+// @Summary GetProdutcts
+// @Description GetProdutcts
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} response.JSONSuccessResult{data=[]model.Product,code=int,message=string}
+// @Failure 400 {object} response.JSONBadRequestResult{code=int,message=string}
+// @Failure 500 {object} response.JSONIntServerErrReqResult{code=int,message=string}
+// @Router /api/products [get]
 func (p ProductControllerImpl) GetProducts(ctx *gin.Context) {
 	products, err := p.productUsecase.GetProducts()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
 	}
-
 	ctx.JSON(http.StatusOK, products)
 }
 
-// Create Product in database
+// CreateProduct godoc
+// @Summary CreateProduct
+// @Description CreateProduct
+// @Accept  json
+// @Produce  json
+// @Param product body dto.ProductCreateRequestBody true "Product Data"
+// @Success 200 {object} response.JSONSuccessResult{data=model.Product,code=int,message=string}
+// @Failure 400 {object} response.JSONBadRequestResult{code=int,message=string}
+// @Failure 500 {object} response.JSONIntServerErrReqResult{code=int,message=string}
+// @Router /api/product [post]
 func (p ProductControllerImpl) CreateProduct(ctx *gin.Context) {
 	userId, err := utils.ExtractIDFromToken(ctx)
 	if err != nil {
@@ -68,7 +84,16 @@ func (p ProductControllerImpl) CreateProduct(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, insertedProduct)
 }
 
-// GetProductById
+// GetProductById godoc
+// @Summary GetProductById
+// @Description GetProductById
+// @Accept  json
+// @Produce  json
+// @Param productId   path   int true   "ProductRequestParam"
+// @Success 200 {object} response.JSONSuccessResult{data=model.Product,code=int,message=string}
+// @Failure 400 {object} response.JSONBadRequestResult{code=int,message=string}
+// @Failure 500 {object} response.JSONIntServerErrReqResult{code=int,message=string}
+// @Router /api/product/{productId} [get]
 func (p ProductControllerImpl) GetProductById(ctx *gin.Context) {
 	id := ctx.Param("productId")
 	if id == "" {
@@ -105,7 +130,17 @@ func (p ProductControllerImpl) GetProductById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, product)
 }
 
-// DeleteProduct
+// DeleteProduct godoc
+// @Summary DeleteProduct
+// @Description DeleteProduct
+// @ID productId
+// @Accept  json
+// @Produce  json
+// @Param productId   path   int true   "ProductRequestParam"
+// @Success 204 {object} response.JSONSuccessResult{data=nil,code=int,message=string}
+// @Failure 400 {object} response.JSONBadRequestResult{code=int,message=string}
+// @Failure 500 {object} response.JSONIntServerErrReqResult{code=int,message=string}
+// @Router /api/product/{productId} [delete]
 func (p ProductControllerImpl) DeleteProduct(ctx *gin.Context) {
 	userId, err := utils.ExtractIDFromToken(ctx)
 	if err != nil {
@@ -153,7 +188,18 @@ func (p ProductControllerImpl) DeleteProduct(ctx *gin.Context) {
 	ctx.JSON(http.StatusNoContent, nil)
 }
 
-// UpdateProduct
+// UpdateProduct godoc
+// @Summary UpdateProduct
+// @Description UpdateProduct
+// @ID productId
+// @Accept  json
+// @Produce  json
+// @Param productId   path   int true   "ProductRequestParam"
+// @Param product body dto.ProductCreateRequestBody true "Product Data"
+// @Success 204 {object} response.JSONSuccessResult{data=nil,code=int,message=string}
+// @Failure 400 {object} response.JSONBadRequestResult{code=int,message=string}
+// @Failure 500 {object} response.JSONIntServerErrReqResult{code=int,message=string}
+// @Router /api/product/{productId} [put]
 func (p ProductControllerImpl) UpdateProduct(ctx *gin.Context) {
 	userId, err := utils.ExtractIDFromToken(ctx)
 	if err != nil {

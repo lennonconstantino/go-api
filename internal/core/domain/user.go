@@ -63,3 +63,7 @@ func (user *User) format(step string) error {
 	}
 	return nil
 }
+
+func (user *User) TableName() string {
+	return "users"
+}

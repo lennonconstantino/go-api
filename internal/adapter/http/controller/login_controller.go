@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"go-api/internal/core/domain"
+	entity "go-api/internal/core/domain"
 	"go-api/internal/core/usecase"
 
 	"go-api/utils"
@@ -26,6 +26,15 @@ func NewLoginController(usecase usecase.UserUsecase) *LoginControllerImpl {
 	}
 }
 
+// @Summary Login User
+// @Description Login user
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} response.JSONSuccessResult{data=entity.Auth,code=int,message=string}
+// @Failure 400 {object} response.JSONBadRequestResult{code=int,message=string}
+// @Failure 500 {object} response.JSONIntServerErrReqResult{code=int,message=string}
+// @Router /api/login [post]
 func (lc LoginControllerImpl) Login(ctx *gin.Context) {
 	ctx.Header("Content-Type", "application/json")
 

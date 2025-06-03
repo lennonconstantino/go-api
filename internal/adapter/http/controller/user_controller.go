@@ -3,7 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"errors"
-	"go-api/internal/core/domain"
+	entity "go-api/internal/core/domain"
 	"go-api/internal/core/usecase"
 	"go-api/utils"
 	"net/http"
@@ -33,6 +33,17 @@ func NewUserController(usecase usecase.UserUsecase) *UserControllerImpl {
 	}
 }
 
+// GetUsers godoc
+// @Summary GetUsers
+// @Description GetUsers
+// @ID username
+// @Accept  json
+// @Produce  json
+// @Param username   path   int true   "UserRequestParam"
+// @Success 200 {object} response.JSONSuccessResult{data=[]entity.User,code=int,message=string}
+// @Failure 400 {object} response.JSONBadRequestResult{code=int,message=string}
+// @Failure 500 {object} response.JSONIntServerErrReqResult{code=int,message=string}
+// @Router /api/users [get]
 func (uu UserControllerImpl) GetUsers(ctx *gin.Context) {
 	username := strings.ToLower(ctx.Query("username"))
 
@@ -45,6 +56,17 @@ func (uu UserControllerImpl) GetUsers(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, users)
 }
 
+// GetUserById godoc
+// @Summary GetUserById
+// @Description GetUserById
+// @ID userId
+// @Accept  json
+// @Produce  json
+// @Param userId   path   int true   "UserRequestParam"
+// @Success 200 {object} response.JSONSuccessResult{data=entity.User,code=int,message=string}
+// @Failure 400 {object} response.JSONBadRequestResult{code=int,message=string}
+// @Failure 500 {object} response.JSONIntServerErrReqResult{code=int,message=string}
+// @Router /api/user/{userId} [get]
 func (uu UserControllerImpl) GetUserById(ctx *gin.Context) {
 	userID, err := strconv.ParseUint(ctx.Param("userId"), 10, 64)
 	if err != nil {
@@ -61,6 +83,16 @@ func (uu UserControllerImpl) GetUserById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
+// CreateUser godoc
+// @Summary CreateUser
+// @Description CreateUser
+// @Accept  json
+// @Produce  json
+// @Param user body dto.UserCreateRequestBody true "User Data"
+// @Success 200 {object} response.JSONSuccessResult{data=entity.User,code=int,message=string}
+// @Failure 400 {object} response.JSONBadRequestResult{code=int,message=string}
+// @Failure 500 {object} response.JSONIntServerErrReqResult{code=int,message=string}
+// @Router /api/user [post]
 func (uu UserControllerImpl) CreateUser(ctx *gin.Context) {
 
 	var user entity.User
@@ -84,6 +116,18 @@ func (uu UserControllerImpl) CreateUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, user)
 }
 
+// UpdateUser godoc
+// @Summary UpdateUser
+// @Description UpdateUser
+// @ID userId
+// @Accept  json
+// @Produce  json
+// @Param userId   path   int true   "UserRequestParam"
+// @Param user body dto.UserUpdateRequestBody true "User Data"
+// @Success 204 {object} response.JSONSuccessResult{data=nil,code=int,message=string}
+// @Failure 400 {object} response.JSONBadRequestResult{code=int,message=string}
+// @Failure 500 {object} response.JSONIntServerErrReqResult{code=int,message=string}
+// @Router /api/user/{userId} [put]
 func (uu UserControllerImpl) UpdateUser(ctx *gin.Context) {
 	userIDToken, err := utils.ExtractIDFromToken(ctx)
 	if err != nil {
@@ -128,6 +172,17 @@ func (uu UserControllerImpl) UpdateUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusNoContent, nil)
 }
 
+// DeleteUser godoc
+// @Summary DeleteUser
+// @Description DeleteUser
+// @ID userId
+// @Accept  json
+// @Produce  json
+// @Param userId   path   int true   "UserRequestParam"
+// @Success 204 {object} response.JSONSuccessResult{data=nil,code=int,message=string}
+// @Failure 400 {object} response.JSONBadRequestResult{code=int,message=string}
+// @Failure 500 {object} response.JSONIntServerErrReqResult{code=int,message=string}
+// @Router /api/user/{userId} [delete]
 func (uu UserControllerImpl) DeleteUser(ctx *gin.Context) {
 	userIDToken, err := utils.ExtractIDFromToken(ctx)
 	if err != nil {
@@ -154,6 +209,17 @@ func (uu UserControllerImpl) DeleteUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusNoContent, nil)
 }
 
+// UpdatePassword godoc
+// @Summary UpdatePassword
+// @Description UpdatePassword
+// @Accept  json
+// @Produce  json
+// @Param userId   path   int true   "UserRequestParam"
+// @Param login body dto.LoginRequestDto true "login Data"
+// @Success 204 {object} response.JSONSuccessResult{data=nil,code=int,message=string}
+// @Failure 400 {object} response.JSONBadRequestResult{code=int,message=string}
+// @Failure 500 {object} response.JSONIntServerErrReqResult{code=int,message=string}
+// @Router /api/user/{userId}/update-password [post]
 func (uu UserControllerImpl) UpdatePassword(ctx *gin.Context) {
 	userIDToken, err := utils.ExtractIDFromToken(ctx)
 	if err != nil {
