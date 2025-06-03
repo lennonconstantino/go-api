@@ -29,7 +29,7 @@ func returnVerificationKey(token *jwt.Token) (any, error) {
 		return nil, fmt.Errorf("Unexpected signature method! %v", token.Header["alg"])
 	}
 
-	return config.SecretKey, nil
+	return config.ConfigInstance.Server.SecretKey, nil
 }
 
 // CreateToken
@@ -40,7 +40,7 @@ func CreateToken(id uint64) (string, error) {
 		"exp":        time.Now().Add(time.Hour * 24).Unix(),
 	})
 
-	tokenString, err := token.SignedString(config.SecretKey)
+	tokenString, err := token.SignedString(config.ConfigInstance.Server.SecretKey)
 	if err != nil {
 		return "", err
 	}
@@ -48,8 +48,8 @@ func CreateToken(id uint64) (string, error) {
 	return tokenString, nil
 }
 
-// ExtractToken
-func ExtractToken(ctx *gin.Context) string {
+// extractToken
+func extractToken(ctx *gin.Context) string {
 	ctx.Header("Content-Type", "application/json")
 	tokenString := ctx.GetHeader("Authorization")
 
@@ -62,7 +62,7 @@ func ExtractToken(ctx *gin.Context) string {
 
 // ExtractIDFromToken
 func ExtractIDFromToken(ctx *gin.Context) (uint64, error) {
-	tokenString := ExtractToken(ctx)
+	tokenString := extractToken(ctx)
 	token, err := jwt.Parse(tokenString, returnVerificationKey)
 	if err != nil {
 		return 0, err
@@ -82,7 +82,7 @@ func ExtractIDFromToken(ctx *gin.Context) (uint64, error) {
 
 // ValidateToken
 func ValidateToken(ctx *gin.Context) (*jwt.Token, error) {
-	tokenString := ExtractToken(ctx)
+	tokenString := extractToken(ctx)
 	if tokenString == "" {
 		return nil, errors.New("Missing authorization header")
 	}

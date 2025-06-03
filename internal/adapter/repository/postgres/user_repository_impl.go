@@ -1,43 +1,36 @@
-package repository
+package postgres
 
 import (
 	"database/sql"
 	"fmt"
-	"go-api/model"
+	entity "go-api/internal/core/domain"
 )
 
-type UserRepository interface {
-	GetUsers(username string) ([]model.User, error)
-	CreateUser(user model.User) (uint64, error)
-	GetUserById(userId uint64) (*model.User, error)
-	DeleteUser(userId uint64) error
-	UpdateUser(userId uint64, user model.User) error
-	FetchPassword(userId uint64) (string, error)
-	UpdatePassword(userId uint64, password string) error
-	GetUserByEmail(email string) (model.User, error)
-}
-
+// UserRepositoryImpl implements the methods
 type UserRepositoryImpl struct {
 	connection *sql.DB
 }
 
+// NewUserRepository initialize the repo
 func NewUserRepository(connection *sql.DB) *UserRepositoryImpl {
 	return &UserRepositoryImpl{
 		connection: connection,
 	}
 }
 
-func (ur UserRepositoryImpl) GetUsers(username string) ([]model.User, error) {
+// GetUser
+func (ur UserRepositoryImpl) GetUsers(username string) ([]entity.User, error) {
 	username = fmt.Sprintf("%%%s%%", username) // %username%
 
 	rows, err := ur.connection.Query("select id, username, email, created_at from users where username LIKE $1", username)
 	if err != nil {
 		fmt.Println(err)
-		return []model.User{}, err
+		return []entity.User{}, err
 	}
+	defer rows.Close()
 
-	var UserList []model.User
-	var UserObj model.User
+	var UserList []entity.User
+	var UserObj entity.User
 
 	for rows.Next() {
 		err = rows.Scan(
@@ -48,7 +41,7 @@ func (ur UserRepositoryImpl) GetUsers(username string) ([]model.User, error) {
 
 		if err != nil {
 			fmt.Println(err)
-			return []model.User{}, err
+			return []entity.User{}, err
 		}
 
 		UserList = append(UserList, UserObj)
@@ -59,7 +52,8 @@ func (ur UserRepositoryImpl) GetUsers(username string) ([]model.User, error) {
 	return UserList, nil
 }
 
-func (ur UserRepositoryImpl) CreateUser(user model.User) (uint64, error) {
+// CreateUser
+func (ur UserRepositoryImpl) CreateUser(user entity.User) (uint64, error) {
 	var id int
 	query, err := ur.connection.Prepare("INSERT INTO users" +
 		"(username, email, password)" +
@@ -69,6 +63,7 @@ func (ur UserRepositoryImpl) CreateUser(user model.User) (uint64, error) {
 		fmt.Println(err)
 		return 0, err
 	}
+	defer query.Close()
 
 	err = query.QueryRow(user.Username, user.Email, user.Password).Scan(&id)
 	if err != nil {
@@ -79,14 +74,16 @@ func (ur UserRepositoryImpl) CreateUser(user model.User) (uint64, error) {
 	return uint64(id), nil
 }
 
-func (ur UserRepositoryImpl) GetUserById(userId uint64) (*model.User, error) {
+// GetUserById
+func (ur UserRepositoryImpl) GetUserById(userId uint64) (*entity.User, error) {
 	query, err := ur.connection.Prepare("SELECT id, username, email, created_at FROM users WHERE id = $1")
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
+	defer query.Close()
 
-	var user model.User
+	var user entity.User
 
 	err = query.QueryRow(userId).Scan(
 		&user.ID,
@@ -108,6 +105,7 @@ func (ur UserRepositoryImpl) GetUserById(userId uint64) (*model.User, error) {
 	return &user, nil
 }
 
+// DeleteUser
 func (ur UserRepositoryImpl) DeleteUser(userId uint64) error {
 	statement, err := ur.connection.Prepare("DELETE FROM users WHERE id = $1")
 	if err != nil {
@@ -123,7 +121,8 @@ func (ur UserRepositoryImpl) DeleteUser(userId uint64) error {
 	return nil
 }
 
-func (ur UserRepositoryImpl) UpdateUser(userId uint64, user model.User) error {
+// UpdateUser
+func (ur UserRepositoryImpl) UpdateUser(userId uint64, user entity.User) error {
 	statement, err := ur.connection.Prepare(
 		"update users set username = $1, email = $2 where id = $3",
 	)
@@ -147,7 +146,7 @@ func (ur UserRepositoryImpl) FetchPassword(userId uint64) (string, error) {
 	}
 	defer line.Close()
 
-	var user model.User
+	var user entity.User
 
 	if line.Next() {
 		if err = line.Scan(&user.Password); err != nil {
@@ -173,18 +172,19 @@ func (ur UserRepositoryImpl) UpdatePassword(userId uint64, password string) erro
 	return nil
 }
 
-func (ur UserRepositoryImpl) GetUserByEmail(email string) (model.User, error) {
+// GetUserByEmail
+func (ur UserRepositoryImpl) GetUserByEmail(email string) (entity.User, error) {
 	line, err := ur.connection.Query("SELECT id, password FROM users WHERE email = $1", email)
 	if err != nil {
 		fmt.Println(err)
-		return model.User{}, err
+		return entity.User{}, err
 	}
 	defer line.Close()
 
-	var user model.User
+	var user entity.User
 	if line.Next() {
 		if err = line.Scan(&user.ID, &user.Password); err != nil {
-			return model.User{}, err
+			return entity.User{}, err
 		}
 	}
 

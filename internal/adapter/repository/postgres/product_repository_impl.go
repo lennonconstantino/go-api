@@ -1,39 +1,35 @@
-package repository
+package postgres
 
 import (
 	"database/sql"
 	"fmt"
-	"go-api/model"
+	entity "go-api/internal/core/domain"
 )
 
-type ProductRepository interface {
-	GetProducts() ([]model.Product, error)
-	CreateProduct(product model.Product) (int, error)
-	GetProductById(id_product int) (*model.Product, error)
-	DeleteProduct(id_product int) error
-	UpdateProduct(id_product int, product model.Product) error
-}
-
+// ProductRepositoryImpl implements the methods
 type ProductRepositoryImpl struct {
 	connection *sql.DB
 }
 
+// NewProductRepository initialize the repo
 func NewProductRepository(connection *sql.DB) *ProductRepositoryImpl {
 	return &ProductRepositoryImpl{
 		connection: connection,
 	}
 }
 
-func (pr ProductRepositoryImpl) GetProducts() ([]model.Product, error) {
+// GetProducts
+func (pr ProductRepositoryImpl) GetProducts() ([]entity.Product, error) {
 	query := "SELECT id, name, price FROM product"
 	rows, err := pr.connection.Query(query)
 	if err != nil {
 		fmt.Println(err)
-		return []model.Product{}, err
+		return []entity.Product{}, err
 	}
+	defer rows.Close()
 
-	var productList []model.Product
-	var productObj model.Product
+	var productList []entity.Product
+	var productObj entity.Product
 
 	for rows.Next() {
 		err = rows.Scan(
@@ -43,7 +39,7 @@ func (pr ProductRepositoryImpl) GetProducts() ([]model.Product, error) {
 
 		if err != nil {
 			fmt.Println(err)
-			return []model.Product{}, err
+			return []entity.Product{}, err
 		}
 
 		productList = append(productList, productObj)
@@ -54,7 +50,8 @@ func (pr ProductRepositoryImpl) GetProducts() ([]model.Product, error) {
 	return productList, nil
 }
 
-func (pr ProductRepositoryImpl) CreateProduct(product model.Product) (int, error) {
+// CreateProduct
+func (pr ProductRepositoryImpl) CreateProduct(product entity.Product) (int, error) {
 	var id int
 	query, err := pr.connection.Prepare("INSERT INTO product" +
 		"(name, price)" +
@@ -64,6 +61,7 @@ func (pr ProductRepositoryImpl) CreateProduct(product model.Product) (int, error
 		fmt.Println(err)
 		return 0, err
 	}
+	defer query.Close()
 
 	err = query.QueryRow(product.Name, product.Price).Scan(&id)
 	if err != nil {
@@ -74,16 +72,18 @@ func (pr ProductRepositoryImpl) CreateProduct(product model.Product) (int, error
 	return id, nil
 }
 
-func (pr ProductRepositoryImpl) GetProductById(id_product int) (*model.Product, error) {
+// GetProductById
+func (pr ProductRepositoryImpl) GetProductById(idProduct int) (*entity.Product, error) {
 	query, err := pr.connection.Prepare("SELECT * FROM product WHERE id = $1")
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
+	defer query.Close()
 
-	var product model.Product
+	var product entity.Product
 
-	err = query.QueryRow(id_product).Scan(
+	err = query.QueryRow(idProduct).Scan(
 		&product.ID,
 		&product.Name,
 		&product.Price,
@@ -102,7 +102,8 @@ func (pr ProductRepositoryImpl) GetProductById(id_product int) (*model.Product, 
 	return &product, nil
 }
 
-func (pr ProductRepositoryImpl) DeleteProduct(id_product int) error {
+// DeleteProduct
+func (pr ProductRepositoryImpl) DeleteProduct(idProduct int) error {
 	statement, err := pr.connection.Prepare("DELETE FROM product WHERE id = $1")
 	if err != nil {
 		fmt.Println(err)
@@ -110,14 +111,15 @@ func (pr ProductRepositoryImpl) DeleteProduct(id_product int) error {
 	}
 	defer statement.Close()
 
-	if _, err = statement.Exec(id_product); err != nil {
+	if _, err = statement.Exec(idProduct); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (pr ProductRepositoryImpl) UpdateProduct(id_product int, product model.Product) error {
+// UpdateProduct
+func (pr ProductRepositoryImpl) UpdateProduct(idProduct int, product entity.Product) error {
 	statement, err := pr.connection.Prepare(
 		"update product set price = $1, name = $2 where id = $3",
 	)
@@ -126,7 +128,7 @@ func (pr ProductRepositoryImpl) UpdateProduct(id_product int, product model.Prod
 	}
 	defer statement.Close()
 
-	if _, err = statement.Exec(product.Price, product.Name, id_product); err != nil {
+	if _, err = statement.Exec(product.Price, product.Name, idProduct); err != nil {
 		return err
 	}
 

@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"go-api/model"
-	"go-api/usecase"
+	"go-api/internal/core/domain"
+	"go-api/internal/core/usecase"
 
 	"go-api/utils"
 	"net/http"
@@ -29,7 +29,7 @@ func NewLoginController(usecase usecase.UserUsecase) *LoginControllerImpl {
 func (lc LoginControllerImpl) Login(ctx *gin.Context) {
 	ctx.Header("Content-Type", "application/json")
 
-	var u model.User
+	var u entity.User
 	err := ctx.BindJSON(&u)
 	if err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, err)
@@ -55,5 +55,5 @@ func (lc LoginControllerImpl) Login(ctx *gin.Context) {
 
 	userID := strconv.FormatUint(userDB.ID, 10)
 
-	ctx.JSON(http.StatusOK, model.Auth{ID: userID, Token: token})
+	ctx.JSON(http.StatusOK, entity.Auth{ID: userID, Token: token})
 }

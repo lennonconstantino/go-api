@@ -2,8 +2,8 @@ package controller
 
 import (
 	"encoding/json"
-	"go-api/model"
-	"go-api/usecase"
+	model "go-api/internal/core/domain"
+	"go-api/internal/core/usecase"
 	"go-api/utils"
 	"io/ioutil"
 	"net/http"

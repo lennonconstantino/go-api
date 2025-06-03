@@ -1,9 +1,9 @@
 package inject
 
 import (
-	"go-api/controller"
-	"go-api/repository"
-	"go-api/usecase"
+	"go-api/internal/adapter/http/controller"
+	"go-api/internal/adapter/repository"
+	"go-api/internal/core/usecase"
 )
 
 type Initialization struct {

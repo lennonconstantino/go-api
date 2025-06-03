@@ -1,4 +1,4 @@
-package model
+package entity
 
 // Password represents the format of the password change request
 type Password struct {

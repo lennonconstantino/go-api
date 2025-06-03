@@ -1,25 +1,22 @@
-//go:build wireinject
-// +build wireinject
-
 package inject
 
 import (
-	"go-api/controller"
-	"go-api/db"
-	"go-api/repository"
-	"go-api/usecase"
+	"go-api/internal/adapter/http/controller"
+	"go-api/internal/adapter/repository"
+	"go-api/internal/adapter/repository/postgres"
+	"go-api/internal/core/usecase"
 
 	"github.com/google/wire"
 )
 
-var db2 = wire.NewSet(db.ConnectDB)
+var pqconn = wire.NewSet(postgres.Connect)
 
-var userRepositorySet = wire.NewSet(repository.NewUserRepository,
-	wire.Bind(new(repository.UserRepository), new(*repository.UserRepositoryImpl)),
+var userRepositorySet = wire.NewSet(postgres.NewUserRepository,
+	wire.Bind(new(repository.UserRepository), new(*postgres.UserRepositoryImpl)),
 )
 
-var productRepositorySet = wire.NewSet(repository.NewProductRepository,
-	wire.Bind(new(repository.ProductRepository), new(*repository.ProductRepositoryImpl)),
+var productRepositorySet = wire.NewSet(postgres.NewProductRepository,
+	wire.Bind(new(repository.ProductRepository), new(*postgres.ProductRepositoryImpl)),
 )
 
 var userUsecaseSet = wire.NewSet(usecase.NewUserUsecase,
@@ -43,6 +40,6 @@ var productControllerSet = wire.NewSet(controller.NewProductController,
 )
 
 func Init() *Initialization {
-	wire.Build(NewInitialization, db2, userRepositorySet, productRepositorySet, userUsecaseSet, productUsecaseSet, loginControllerSet, userControllerSet, productControllerSet)
+	wire.Build(NewInitialization, pqconn, userRepositorySet, productRepositorySet, userUsecaseSet, productUsecaseSet, loginControllerSet, userControllerSet, productControllerSet)
 	return nil
 }

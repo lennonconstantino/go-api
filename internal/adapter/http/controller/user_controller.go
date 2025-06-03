@@ -3,8 +3,8 @@ package controller
 import (
 	"encoding/json"
 	"errors"
-	"go-api/model"
-	"go-api/usecase"
+	"go-api/internal/core/domain"
+	"go-api/internal/core/usecase"
 	"go-api/utils"
 	"net/http"
 	"strconv"
@@ -63,7 +63,7 @@ func (uu UserControllerImpl) GetUserById(ctx *gin.Context) {
 
 func (uu UserControllerImpl) CreateUser(ctx *gin.Context) {
 
-	var user model.User
+	var user entity.User
 	err := ctx.BindJSON(&user)
 	if err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, err)
@@ -109,7 +109,7 @@ func (uu UserControllerImpl) UpdateUser(ctx *gin.Context) {
 		return
 	}
 
-	var user model.User
+	var user entity.User
 	if err = json.Unmarshal(bodyRequest, &user); err != nil {
 		ctx.JSON(http.StatusBadRequest, err)
 		return
@@ -178,7 +178,7 @@ func (uu UserControllerImpl) UpdatePassword(ctx *gin.Context) {
 		return
 	}
 
-	var password model.Password
+	var password entity.Password
 	if err = json.Unmarshal(bodyRequest, &password); err != nil {
 		ctx.JSON(http.StatusBadRequest, err)
 		return

@@ -2,7 +2,7 @@ package router
 
 import (
 	"go-api/inject"
-	"go-api/middleware"
+	"go-api/internal/adapter/http/middleware"
 
 	"github.com/gin-gonic/gin"
 )
