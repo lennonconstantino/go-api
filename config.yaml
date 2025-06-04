@@ -1,7 +1,10 @@
 server:
   port: 8000
   secretkey: 4onbw9Pld8THZeBX9Na86aLzbeZn3Ogt1CTXQpJZlGwbIYELPYcUkn7WnOr2gnH44pu18ZP3fwocWhSdCKh4wg==
-  
+  Environment: "development"
+  cors_allowed_origins:
+  - "*"
+
 db:
   host: go_db
   port: 5432

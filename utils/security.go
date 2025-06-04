@@ -29,7 +29,7 @@ func returnVerificationKey(token *jwt.Token) (any, error) {
 		return nil, fmt.Errorf("Unexpected signature method! %v", token.Header["alg"])
 	}
 
-	return config.ConfigInstance.Server.SecretKey, nil
+	return []byte(config.ConfigInstance.Server.SecretKey), nil
 }
 
 // CreateToken
@@ -40,8 +40,10 @@ func CreateToken(id uint64) (string, error) {
 		"exp":        time.Now().Add(time.Hour * 24).Unix(),
 	})
 
-	tokenString, err := token.SignedString(config.ConfigInstance.Server.SecretKey)
+	fmt.Println("::: Token :::", config.ConfigInstance.Server.SecretKey)
+	tokenString, err := token.SignedString([]byte(config.ConfigInstance.Server.SecretKey))
 	if err != nil {
+		fmt.Println(err)
 		return "", err
 	}
 

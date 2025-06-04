@@ -1,9 +1,11 @@
 package router
 
 import (
+	"go-api/config"
 	"go-api/inject"
 	"go-api/internal/adapter/http/middleware"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -21,6 +23,11 @@ func Init(init *inject.Initialization) *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
+
+	// Adding Cors
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = config.ConfigInstance.Server.CORSAllowedOrigins
+	router.Use(cors.New(corsConfig))
 
 	// programmatically set swagger info
 	docs.SwaggerInfo.Title = "Swagger Example API"

@@ -14,8 +14,10 @@ type (
 	}
 
 	Server struct {
-		Port      int
-		SecretKey string
+		Port               int
+		SecretKey          string
+		Environment        string
+		CORSAllowedOrigins []string
 	}
 
 	Db struct {
@@ -49,6 +51,13 @@ func GetConfig() *Config {
 		if err := viper.Unmarshal(&ConfigInstance); err != nil {
 			panic(err)
 		}
+
+		corsAllowedOrigins := viper.GetStringSlice("cors_allowed_origins")
+		if len(corsAllowedOrigins) == 0 {
+			corsAllowedOrigins = []string{"*"}
+		}
+
+		ConfigInstance.Server.CORSAllowedOrigins = corsAllowedOrigins
 	})
 
 	return ConfigInstance
