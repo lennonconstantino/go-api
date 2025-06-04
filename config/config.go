@@ -1,6 +1,7 @@
 package config
 
 import (
+	"os"
 	"strings"
 	"sync"
 
@@ -58,6 +59,7 @@ func GetConfig() *Config {
 		}
 
 		ConfigInstance.Server.CORSAllowedOrigins = corsAllowedOrigins
+		ConfigInstance.Server.SecretKey = os.Getenv(viper.GetString(""))
 	})
 
 	return ConfigInstance
