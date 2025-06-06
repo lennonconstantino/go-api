@@ -7,8 +7,12 @@ services:
     build: .
     ports:
       - "8000:8000"
+    networks:
+      - prod
     depends_on:
       - go_db
+      - go_redis
+
   go_db:
     container_name: go_db
     image: postgres:12
@@ -20,6 +24,21 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-
+    networks:
+      - prod
+  go_redis:
+    image: redis
+    container_name: go_redis
+    networks:
+      - prod
+    depends_on:
+      - go_db
+    ports:
+      - "6379:6379"
+ 
 volumes:
   pgdata: {}
+
+networks:
+  prod:
+    driver: bridge

@@ -2,6 +2,8 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
+	"go-api/internal/adapter/cache"
 	model "go-api/internal/core/domain"
 	"go-api/internal/core/usecase"
 	"go-api/utils"
@@ -43,10 +45,28 @@ func NewProductController(usecase usecase.ProductUsecase) *ProductControllerImpl
 // @Failure 500 {object} response.JSONIntServerErrReqResult{code=int,message=string}
 // @Router /api/products [get]
 func (p ProductControllerImpl) GetProducts(ctx *gin.Context) {
-	products, err := p.productUsecase.GetProducts()
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err)
+	// Accessing a header using c.GetHeader method
+	contentType := ctx.GetHeader("cache")
+	var products []model.Product
+	var err error
+
+	if contentType == "true" {
+		objects, err := cache.Cache("products", p.productUsecase.GetProducts)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, err)
+			return
+		}
+		json.Unmarshal(objects, &products)
+	} else {
+
+		fmt.Println("No Cache")
+		products, err = p.productUsecase.GetProducts()
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, err)
+			return
+		}
 	}
+
 	ctx.JSON(http.StatusOK, products)
 }
 

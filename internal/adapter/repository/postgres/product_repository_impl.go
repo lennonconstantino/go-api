@@ -20,7 +20,7 @@ func NewProductRepository(connection *sql.DB) *ProductRepositoryImpl {
 
 // GetProducts
 func (pr ProductRepositoryImpl) GetProducts() ([]entity.Product, error) {
-	query := "SELECT id, name, price FROM product"
+	query := "SELECT id, name, price FROM products"
 	rows, err := pr.connection.Query(query)
 	if err != nil {
 		fmt.Println(err)
@@ -53,7 +53,7 @@ func (pr ProductRepositoryImpl) GetProducts() ([]entity.Product, error) {
 // CreateProduct
 func (pr ProductRepositoryImpl) CreateProduct(product entity.Product) (int, error) {
 	var id int
-	query, err := pr.connection.Prepare("INSERT INTO product" +
+	query, err := pr.connection.Prepare("INSERT INTO products" +
 		"(name, price)" +
 		" VALUES ($1, $2) RETURNING id")
 
@@ -74,7 +74,7 @@ func (pr ProductRepositoryImpl) CreateProduct(product entity.Product) (int, erro
 
 // GetProductById
 func (pr ProductRepositoryImpl) GetProductById(idProduct int) (*entity.Product, error) {
-	query, err := pr.connection.Prepare("SELECT * FROM product WHERE id = $1")
+	query, err := pr.connection.Prepare("SELECT * FROM products WHERE id = $1")
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -104,7 +104,7 @@ func (pr ProductRepositoryImpl) GetProductById(idProduct int) (*entity.Product, 
 
 // DeleteProduct
 func (pr ProductRepositoryImpl) DeleteProduct(idProduct int) error {
-	statement, err := pr.connection.Prepare("DELETE FROM product WHERE id = $1")
+	statement, err := pr.connection.Prepare("DELETE FROM products WHERE id = $1")
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -121,7 +121,7 @@ func (pr ProductRepositoryImpl) DeleteProduct(idProduct int) error {
 // UpdateProduct
 func (pr ProductRepositoryImpl) UpdateProduct(idProduct int, product entity.Product) error {
 	statement, err := pr.connection.Prepare(
-		"update product set price = $1, name = $2 where id = $3",
+		"update products set price = $1, name = $2 where id = $3",
 	)
 	if err != nil {
 		return err
