@@ -14,11 +14,9 @@ func Cache(key string, f handleProducts) ([]byte, error) {
 	reply, err := Get(key)
 
 	if err != nil {
-		fmt.Println("going db")
+		fmt.Println("going to db")
 		objects, err := f()
-		//fmt.Println(objects)
 		if err != nil {
-			//ctx.JSON(http.StatusInternalServerError, err)
 			return nil, err
 		}
 		productBytes, _ := json.Marshal(objects)
@@ -27,6 +25,5 @@ func Cache(key string, f handleProducts) ([]byte, error) {
 	}
 
 	fmt.Println("searching in redis")
-	//json.Unmarshal(reply, &objects)
 	return reply, nil
 }

@@ -56,15 +56,17 @@ func (p ProductControllerImpl) GetProducts(ctx *gin.Context) {
 			ctx.JSON(http.StatusInternalServerError, err)
 			return
 		}
-		json.Unmarshal(objects, &products)
-	} else {
 
-		fmt.Println("No Cache")
-		products, err = p.productUsecase.GetProducts()
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, err)
-			return
-		}
+		json.Unmarshal(objects, &products)
+		ctx.JSON(http.StatusOK, products)
+		return
+	}
+
+	fmt.Println("No Cache")
+	products, err = p.productUsecase.GetProducts()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, err)
+		return
 	}
 
 	ctx.JSON(http.StatusOK, products)
