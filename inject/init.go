@@ -9,6 +9,9 @@ import (
 type Initialization struct {
 	UserRepository    repository.UserRepository
 	ProductRepository repository.ProductRepository
+	// CacheRepository        redis.CacheRepository
+	// UserCacheRepository    redis.UserCacheRepository
+	// ProductCacheRepository redis.ProductCacheRepository
 	UserUsecase       usecase.UserUsecase
 	ProductUsecase    usecase.ProductUsecase
 	LoginController   controller.LoginController
@@ -16,16 +19,24 @@ type Initialization struct {
 	ProductController controller.ProductController
 }
 
-func NewInitialization(userRepository repository.UserRepository,
+func NewInitialization(
+	userRepository repository.UserRepository,
 	productRepository repository.ProductRepository,
+	// cacheRepository redis.CacheRepository,
+	// userCacheRepository redis.UserCacheRepository,
+	// productCacheRepository redis.ProductCacheRepository,
 	userUsecase usecase.UserUsecase,
 	productUsecase usecase.ProductUsecase,
 	loginController controller.LoginController,
 	userController controller.UserController,
 	productController controller.ProductController) *Initialization {
 	return &Initialization{
+		//
 		UserRepository:    userRepository,
 		ProductRepository: productRepository,
+		// CacheRepository:        cacheRepository,
+		// UserCacheRepository:    userCacheRepository,
+		// ProductCacheRepository: productCacheRepository,
 		UserUsecase:       userUsecase,
 		ProductUsecase:    productUsecase,
 		LoginController:   loginController,

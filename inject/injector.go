@@ -22,6 +22,24 @@ var productRepositorySet = wire.NewSet(postgres.NewProductRepository,
 	wire.Bind(new(repository.ProductRepository), new(*postgres.ProductRepositoryImpl)),
 )
 
+/*
+var redisconn = wire.NewSet(redis.RedisConnect)
+
+var cacheRepositorySet = wire.NewSet(redis.NewCacheRepository,
+	wire.Bind(new(redis.CacheRepository), new(*redis.CacheRepositoryImpl)),
+)
+
+var userCacheRepositorySet = wire.NewSet(redis.NewUserCacheRepository,
+	wire.Bind(new(redis.UserCacheRepository), new(*redis.UserCacheRepositoryImpl)),
+	//wire.Bind(new(repository.UserRepository), new(*postgres.UserRepositoryImpl)),
+)
+
+var productCacheRepositorySet = wire.NewSet(redis.NewProductCacheRepository,
+	wire.Bind(new(redis.ProductCacheRepository), new(*redis.ProductCacheRepositoryImpl)),
+	//wire.Bind(new(repository.ProductRepository), new(*postgres.ProductRepositoryImpl)),
+)
+*/
+
 var userUsecaseSet = wire.NewSet(usecase.NewUserUsecase,
 	wire.Bind(new(usecase.UserUsecase), new(*usecase.UserUsecaseImpl)),
 )

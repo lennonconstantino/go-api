@@ -45,8 +45,6 @@ func (pr ProductRepositoryImpl) GetProducts() ([]entity.Product, error) {
 		productList = append(productList, productObj)
 	}
 
-	rows.Close()
-
 	return productList, nil
 }
 
@@ -96,8 +94,6 @@ func (pr ProductRepositoryImpl) GetProductById(idProduct int) (*entity.Product, 
 
 		return nil, err
 	}
-
-	query.Close()
 
 	return &product, nil
 }

@@ -3,8 +3,8 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
-	"go-api/internal/adapter/cache"
-	model "go-api/internal/core/domain"
+	"go-api/internal/adapter/repository/redis"
+	entity "go-api/internal/core/domain"
 	"go-api/internal/core/usecase"
 	"go-api/utils"
 	"io/ioutil"
@@ -40,24 +40,30 @@ func NewProductController(usecase usecase.ProductUsecase) *ProductControllerImpl
 // @Accept  json
 // @Produce  json
 // @Tags Products
-// @Success 200 {object} response.JSONSuccessResult{data=[]model.Product,code=int,message=string}
+// @Success 200 {object} response.JSONSuccessResult{data=[]entity.Product,code=int,message=string}
 // @Failure 400 {object} response.JSONBadRequestResult{code=int,message=string}
 // @Failure 500 {object} response.JSONIntServerErrReqResult{code=int,message=string}
 // @Router /api/products [get]
 func (p ProductControllerImpl) GetProducts(ctx *gin.Context) {
 	// Accessing a header using c.GetHeader method
 	contentType := ctx.GetHeader("cache")
-	var products []model.Product
+	var products []entity.Product
 	var err error
 
 	if contentType == "true" {
-		objects, err := cache.Cache("products", p.productUsecase.GetProducts)
+		cacheRepository := redis.NewCacheRepository(redis.RedisConnect())
+		reply, err := cacheRepository.Get("products")
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, err)
-			return
+			products, err = p.productUsecase.GetProducts()
+			if err != nil {
+				ctx.JSON(http.StatusInternalServerError, err)
+				return
+			}
+			productBytes, _ := json.Marshal(products)
+			cacheRepository.Set("products", productBytes, nil)
 		}
 
-		json.Unmarshal(objects, &products)
+		json.Unmarshal(reply, &products)
 		ctx.JSON(http.StatusOK, products)
 		return
 	}
@@ -79,7 +85,7 @@ func (p ProductControllerImpl) GetProducts(ctx *gin.Context) {
 // @Produce  json
 // @Tags Products
 // @Param product body dto.ProductCreateRequestBody true "Product Data"
-// @Success 200 {object} response.JSONSuccessResult{data=model.Product,code=int,message=string}
+// @Success 200 {object} response.JSONSuccessResult{data=entity.Product,code=int,message=string}
 // @Failure 400 {object} response.JSONBadRequestResult{code=int,message=string}
 // @Failure 500 {object} response.JSONIntServerErrReqResult{code=int,message=string}
 // @Router /api/product [post]
@@ -90,7 +96,7 @@ func (p ProductControllerImpl) CreateProduct(ctx *gin.Context) {
 		return
 	}
 
-	var product model.Product
+	var product entity.Product
 	err = ctx.BindJSON(&product)
 	if err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, err)
@@ -115,14 +121,14 @@ func (p ProductControllerImpl) CreateProduct(ctx *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param productId   path   int true   "ProductRequestParam"
-// @Success 200 {object} response.JSONSuccessResult{data=model.Product,code=int,message=string}
+// @Success 200 {object} response.JSONSuccessResult{data=entity.Product,code=int,message=string}
 // @Failure 400 {object} response.JSONBadRequestResult{code=int,message=string}
 // @Failure 500 {object} response.JSONIntServerErrReqResult{code=int,message=string}
 // @Router /api/product/{productId} [get]
 func (p ProductControllerImpl) GetProductById(ctx *gin.Context) {
 	id := ctx.Param("productId")
 	if id == "" {
-		response := model.Response{
+		response := entity.Response{
 			Message: "Id do produto nao pode ser nulo",
 		}
 		ctx.JSON(http.StatusBadRequest, response)
@@ -131,21 +137,49 @@ func (p ProductControllerImpl) GetProductById(ctx *gin.Context) {
 
 	productId, err := strconv.Atoi(id)
 	if err != nil {
-		response := model.Response{
+		response := entity.Response{
 			Message: "Id do produto precisa ser numerico",
 		}
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	product, err := p.productUsecase.GetProductById(productId)
+	contentType := ctx.GetHeader("cache")
+	var product *entity.Product
+
+	if contentType == "true" {
+		cacheRepository := redis.NewCacheRepository(redis.RedisConnect())
+		reply, err := cacheRepository.Get(fmt.Sprintf("products:%d", productId))
+		if err != nil {
+			product, err = p.productUsecase.GetProductById(productId)
+			if err != nil {
+				ctx.JSON(http.StatusInternalServerError, err)
+				return
+			}
+			if product == nil {
+				response := entity.Response{
+					Message: "Produto nao foi encontrado na base de dados",
+				}
+				ctx.JSON(http.StatusNotFound, response)
+				return
+			}
+			productBytes, _ := json.Marshal(product)
+			cacheRepository.Set(fmt.Sprintf("products:%d", productId), productBytes, nil)
+		}
+
+		json.Unmarshal(reply, &product)
+		ctx.JSON(http.StatusOK, product)
+		return
+	}
+
+	product, err = p.productUsecase.GetProductById(productId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
 		return
 	}
 
 	if product == nil {
-		response := model.Response{
+		response := entity.Response{
 			Message: "Produto nao foi encontrado na base de dados",
 		}
 		ctx.JSON(http.StatusNotFound, response)
@@ -176,7 +210,7 @@ func (p ProductControllerImpl) DeleteProduct(ctx *gin.Context) {
 
 	id := ctx.Param("productId")
 	if id == "" {
-		response := model.Response{
+		response := entity.Response{
 			Message: "Id do produto nao pode ser nulo",
 		}
 		ctx.JSON(http.StatusBadRequest, response)
@@ -185,7 +219,7 @@ func (p ProductControllerImpl) DeleteProduct(ctx *gin.Context) {
 
 	productId, err := strconv.Atoi(id)
 	if err != nil {
-		response := model.Response{
+		response := entity.Response{
 			Message: "Id do produto precisa ser numerico",
 		}
 		ctx.JSON(http.StatusBadRequest, response)
@@ -199,7 +233,7 @@ func (p ProductControllerImpl) DeleteProduct(ctx *gin.Context) {
 	}
 
 	if product == nil {
-		response := model.Response{
+		response := entity.Response{
 			Message: "Produto nao foi encontrado na base de dados",
 		}
 		ctx.JSON(http.StatusNotFound, response)
@@ -236,7 +270,7 @@ func (p ProductControllerImpl) UpdateProduct(ctx *gin.Context) {
 
 	id := ctx.Param("productId")
 	if id == "" {
-		response := model.Response{
+		response := entity.Response{
 			Message: "Id do produto nao pode ser nulo",
 		}
 		ctx.JSON(http.StatusBadRequest, response)
@@ -245,7 +279,7 @@ func (p ProductControllerImpl) UpdateProduct(ctx *gin.Context) {
 
 	productId, err := strconv.Atoi(id)
 	if err != nil {
-		response := model.Response{
+		response := entity.Response{
 			Message: "Id do produto precisa ser numerico",
 		}
 		ctx.JSON(http.StatusBadRequest, response)
@@ -258,7 +292,7 @@ func (p ProductControllerImpl) UpdateProduct(ctx *gin.Context) {
 		return
 	}
 
-	var product model.Product
+	var product entity.Product
 	if err = json.Unmarshal(bodyRequest, &product); err != nil {
 		ctx.JSON(http.StatusBadRequest, err)
 		return

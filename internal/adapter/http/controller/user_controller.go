@@ -3,6 +3,8 @@ package controller
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"go-api/internal/adapter/repository/redis"
 	entity "go-api/internal/core/domain"
 	"go-api/internal/core/usecase"
 	"go-api/utils"
@@ -48,6 +50,27 @@ func NewUserController(usecase usecase.UserUsecase) *UserControllerImpl {
 func (uu UserControllerImpl) GetUsers(ctx *gin.Context) {
 	username := strings.ToLower(ctx.Query("username"))
 
+	contentType := ctx.GetHeader("cache")
+	if contentType == "true" {
+		cacheRepository := redis.NewCacheRepository(redis.RedisConnect())
+		var users []entity.User
+
+		reply, err := cacheRepository.Get(fmt.Sprintf("users:%s", username))
+		if err != nil {
+			users, err = uu.userUsecase.GetUsers(username)
+			if err != nil {
+				ctx.JSON(http.StatusInternalServerError, err)
+				return
+			}
+			userBytes, _ := json.Marshal(users)
+			cacheRepository.Set(fmt.Sprintf("users:%s", username), userBytes, nil)
+		}
+
+		json.Unmarshal(reply, &users)
+		ctx.JSON(http.StatusOK, users)
+		return
+	}
+
 	users, err := uu.userUsecase.GetUsers(username)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err)
@@ -73,6 +96,27 @@ func (uu UserControllerImpl) GetUserById(ctx *gin.Context) {
 	userID, err := strconv.ParseUint(ctx.Param("userId"), 10, 64)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	contentType := ctx.GetHeader("cache")
+	if contentType == "true" {
+		var user *entity.User
+
+		cacheRepository := redis.NewCacheRepository(redis.RedisConnect())
+		reply, err := cacheRepository.Get(fmt.Sprintf("users:%d", userID))
+		if err != nil {
+			user, err = uu.userUsecase.GetUserById(userID)
+			if err != nil {
+				ctx.JSON(http.StatusInternalServerError, err)
+				return
+			}
+			userBytes, _ := json.Marshal(user)
+			cacheRepository.Set(fmt.Sprintf("users:%d", userID), userBytes, nil)
+		}
+
+		json.Unmarshal(reply, &user)
+		ctx.JSON(http.StatusOK, user)
 		return
 	}
 

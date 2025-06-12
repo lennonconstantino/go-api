@@ -100,8 +100,6 @@ func (ur UserRepositoryImpl) GetUserById(userId uint64) (*entity.User, error) {
 		return nil, err
 	}
 
-	query.Close()
-
 	return &user, nil
 }
 
